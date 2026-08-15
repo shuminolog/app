@@ -1,0 +1,903 @@
+<!DOCTYPE html>
+<html lang="ja" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>shuminolog Apps</title>
+    <meta name="description" content="shuminologが提供する、趣味の記録や管理に役立つWebアプリケーションです。">
+    <link rel="canonical" href="https://shuminolog.github.io/app/top/">
+    <meta name="robots" content="index, follow">
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="shuminolog">
+    <meta property="og:title" content="shuminolog Apps">
+    <meta property="og:description" content="shuminologが提供する、趣味の記録や管理に役立つWebアプリケーションです。">
+    <meta property="og:url" content="https://shuminolog.github.io/app/top/">
+    <meta property="og:image" content="https://shuminolog.github.io/app/top/images/icon.png">
+    <meta property="og:locale" content="ja_JP">
+    <meta name="twitter:card" content="summary">
+    <meta name="twitter:title" content="shuminolog Apps">
+    <meta name="twitter:description" content="shuminologが提供する、趣味の記録や管理に役立つWebアプリケーションです。">
+    <meta name="twitter:image" content="https://shuminolog.github.io/app/top/images/icon.png">
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-K77LZSXZDR"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+
+        gtag('config', 'G-K77LZSXZDR');
+    </script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Noto Sans JP', 'Inter', sans-serif;
+        }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 antialiased min-h-screen flex flex-col justify-between">
+
+    <!-- ヘッダー -->
+    <header class="bg-white border-b border-slate-200 sticky top-0 z-50">
+        <div class="max-w-5xl mx-auto px-4 py-4 flex justify-between items-center">
+            <div class="flex items-center space-x-2">
+                <span class="font-bold text-lg text-slate-900">shuminolog</span>
+            </div>
+            <!-- PC用ナビゲーション -->
+            <nav class="hidden md:flex items-center space-x-6 text-sm text-slate-600">
+                <a href="#apps" class="hover:text-indigo-600 transition">アプリ一覧</a>
+                <a href="#pwa-guide" class="hover:text-indigo-600 transition">PWAの使い方</a>
+                <a href="#backup-guide" class="hover:text-indigo-600 transition">データバックアップ</a>
+            </nav>
+            <!-- スマホ用ハンバーガーボタン -->
+            <button id="hamburger-btn" class="md:hidden text-slate-600 hover:text-slate-900 focus:outline-none p-2" aria-label="メニューを開く" aria-expanded="false" aria-controls="mobile-menu">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+                </svg>
+            </button>
+        </div>
+        <!-- スマホ用ドロップダウンメニュー -->
+        <div id="mobile-menu" class="hidden md:hidden absolute top-full left-0 w-full bg-white border-b border-slate-200 px-4 pt-2 pb-4 space-y-2 shadow-lg">
+            <a href="#apps" class="mobile-menu-link block py-2 text-slate-600 hover:text-indigo-600 transition">アプリ一覧</a>
+            <a href="#pwa-guide" class="mobile-menu-link block py-2 text-slate-600 hover:text-indigo-600 transition">PWAの使い方</a>
+            <a href="#backup-guide" class="mobile-menu-link block py-2 text-slate-600 hover:text-indigo-600 transition">データバックアップ</a>
+        </div>
+    </header>
+
+    <!-- メインコンテンツ -->
+    <main class="flex-grow">
+        <!-- ヒーローセクション -->
+        <section class="bg-gradient-to-b from-white to-slate-100 py-16 px-4 text-center border-b border-slate-200">
+            <div class="max-w-3xl mx-auto">
+                <h1 class="text-2xl sm:text-4xl font-extrabold text-slate-900 mb-4">
+                    趣味の記録を<br class="block sm:hidden">もっと便利に、もっと楽しく。
+                </h1>
+                <p class="text-slate-600 text-base sm:text-lg mb-8 leading-relaxed">
+                    shuminologが提供する、趣味の記録や<br class="block sm:hidden">管理に役立つWebアプリケーションです。<br>各アプリの詳細や操作方法は<br class="block sm:hidden">以下からご覧いただけます。
+                </p>
+                <div class="flex flex-col sm:flex-row items-center justify-center gap-7 sm:gap-4 pt-2">
+                    <a href="#apps" class="group inline-flex items-center justify-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white font-medium w-10/12 max-w-[240px] sm:w-auto px-8 py-3.5 rounded-xl shadow-lg shadow-indigo-200 hover:shadow-indigo-300 transition-all duration-200 transform hover:-translate-y-0.5">
+                        <span>アプリを見る</span>
+                        <svg class="w-4 h-4 transition-transform group-hover:translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
+                    </a>
+                    <a href="#pwa-guide" class="relative inline-flex items-center justify-center gap-2 bg-white border border-slate-300 hover:bg-slate-50 text-slate-700 font-medium w-10/12 max-w-[240px] sm:w-auto px-8 py-3.5 rounded-xl shadow-sm hover:shadow transition-all duration-200 transform hover:-translate-y-0.5">
+                        <span class="absolute -top-3.5 left-1/2 -translate-x-1/2 bg-indigo-600 text-white text-[10px] font-bold px-2.5 py-0.5 rounded-full shadow-sm whitespace-nowrap z-10">
+                            おすすめ
+                            <span class="absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent border-t-indigo-600"></span>
+                        </span>
+                        <span>📱 PWAの使い方</span>
+                    </a>
+                </div>
+            </div>
+        </section>
+
+        <!-- アプリ紹介セクション -->
+        <section id="apps" class="max-w-5xl mx-auto px-4 py-16">
+            <div class="text-center mb-6">
+                <h2 class="text-2xl font-bold text-slate-900 mb-2">Web Applications</h2>
+                <p class="text-slate-500 text-sm mb-4">カードまたは詳細ボタンから使い方を確認できます</p>
+                <div class="max-w-md mx-auto bg-indigo-50/70 border border-indigo-100 rounded-2xl p-3.5 text-left shadow-sm">
+                    <div class="flex items-start gap-2.5">
+                        <span class="text-lg">📱</span>
+                        <div class="text-xs">
+                            <p class="font-bold text-indigo-900 mb-0.5">スマートフォンでの利用を推奨します</p>
+                            <p class="text-[11px] text-slate-600 leading-normal">
+                                ・iPhone（Safari）での動作を中心に確認しています<br>
+                                ・iPhone SE等の小さめの端末では表示が崩れる場合があります
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                
+                <!-- talklog -->
+                <div class="bg-white rounded-2xl border border-slate-200 shadow-sm hover:shadow-md transition duration-200 flex flex-col overflow-hidden">
+                    <div class="p-6 flex-grow flex flex-col">
+                        <div class="flex items-center space-x-3 mb-4">
+                            <div class="w-12 h-12 text-blue-600 rounded-xl flex items-center justify-center overflow-hidden">
+                                <img src="../talklog/icon.png" alt="talklogアイコン" class="w-full h-full object-contain">
+                            </div>
+                            <div>
+                                <h3 class="text-xl font-bold text-slate-900">talklog</h3>
+                                <span class="text-xs font-medium px-2 py-0.5 rounded" style="background-color: #EDF1FC; color: #3553B3;">トークイベント記録</span>
+                            </div>
+                        </div>
+                        <p class="text-slate-600 text-sm leading-relaxed mb-4">
+                            推しとのミーグリ・イベントでの会話をチャット画面風に再現・記録できます。
+                        </p>
+
+                        <!-- ミニプレビュー -->
+                        <div class="mt-auto pt-2 pb-2">
+                            <div class="grid grid-cols-3 gap-2">
+                                <div onclick="openImageModal('talklog', 0)" class="bg-slate-50 rounded-lg overflow-hidden border border-slate-200 aspect-[9/16] cursor-pointer hover:opacity-90 transition flex items-center justify-center">
+                                    <img src="./images/talklog1.png" alt="talklogプレビュー1" class="w-full h-full object-contain">
+                                </div>
+                                <div onclick="openImageModal('talklog', 1)" class="bg-slate-50 rounded-lg overflow-hidden border border-slate-200 aspect-[9/16] cursor-pointer hover:opacity-90 transition flex items-center justify-center">
+                                    <img src="./images/talklog3.png" alt="talklogプレビュー2" class="w-full h-full object-contain">
+                                </div>
+                                <div onclick="openImageModal('talklog', 2)" class="bg-slate-50 rounded-lg overflow-hidden border border-slate-200 aspect-[9/16] cursor-pointer hover:opacity-90 transition flex items-center justify-center">
+                                    <img src="./images/talklog5.png" alt="talklogプレビュー3" class="w-full h-full object-contain">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="px-6 pb-6 pt-0 flex gap-2">
+                        <button onclick="openModal('talklog-modal')" data-button-name="talklog_detail" class="track-btn flex-1 bg-slate-100 hover:bg-slate-200 text-slate-800 font-medium py-2.5 rounded-xl text-sm transition duration-200">
+                            詳細・操作方法
+                        </button>
+                        <a href="https://shuminolog.github.io/app/talklog/" target="_blank" rel="noopener noreferrer" data-button-name="talklog_link" class="track-btn bg-indigo-600 hover:bg-indigo-700 text-white font-medium px-4 py-2.5 rounded-xl text-sm transition duration-200 flex items-center justify-center">
+                            開く →
+                        </a>
+                    </div>
+                </div>
+
+                <!-- maillog -->
+                <div class="bg-white rounded-2xl border border-slate-200 shadow-sm hover:shadow-md transition duration-200 flex flex-col overflow-hidden">
+                    <div class="p-6 flex-grow flex flex-col">
+                        <div class="flex items-center space-x-3 mb-4">
+                            <div class="w-12 h-12 text-amber-600 rounded-xl flex items-center justify-center overflow-hidden">
+                                <img src="../maillog/icon.png" alt="maillogアイコン" class="w-full h-full object-contain">
+                            </div>
+                            <div>
+                                <h3 class="text-xl font-bold text-slate-900">maillog</h3>
+                                <span class="text-xs font-medium px-2 py-0.5 rounded" style="background-color: #FEF3D6; color: #9A6C00;">ラジオメール記録</span>
+                            </div>
+                        </div>
+                        <p class="text-slate-600 text-sm leading-relaxed mb-4">
+                            ラジオ番組の採用メールとパーソナリティの反応を一元管理できます。
+                        </p>
+
+                        <!-- ミニプレビュー -->
+                        <div class="mt-auto pt-2 pb-2">
+                            <div class="grid grid-cols-3 gap-2">
+                                <div onclick="openImageModal('maillog', 0)" class="bg-slate-50 rounded-lg overflow-hidden border border-slate-200 aspect-[9/16] cursor-pointer hover:opacity-90 transition flex items-center justify-center">
+                                    <img src="./images/maillog1.png" alt="maillogプレビュー1" class="w-full h-full object-contain">
+                                </div>
+                                <div onclick="openImageModal('maillog', 1)" class="bg-slate-50 rounded-lg overflow-hidden border border-slate-200 aspect-[9/16] cursor-pointer hover:opacity-90 transition flex items-center justify-center">
+                                    <img src="./images/maillog3.png" alt="maillogプレビュー2" class="w-full h-full object-contain">
+                                </div>
+                                <div onclick="openImageModal('maillog', 2)" class="bg-slate-50 rounded-lg overflow-hidden border border-slate-200 aspect-[9/16] cursor-pointer hover:opacity-90 transition flex items-center justify-center">
+                                    <img src="./images/maillog6.png" alt="maillogプレビュー3" class="w-full h-full object-contain">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="px-6 pb-6 pt-0 flex gap-2">
+                        <button onclick="openModal('maillog-modal')" data-button-name="maillog_detail" class="track-btn flex-1 bg-slate-100 hover:bg-slate-200 text-slate-800 font-medium py-2.5 rounded-xl text-sm transition duration-200">
+                            詳細・操作方法
+                        </button>
+                        <a href="https://shuminolog.github.io/app/maillog/" target="_blank" rel="noopener noreferrer" data-button-name="maillog_link" class="track-btn bg-indigo-600 hover:bg-indigo-700 text-white font-medium px-4 py-2.5 rounded-xl text-sm transition duration-200 flex items-center justify-center">
+                            開く →
+                        </a>
+                    </div>
+                </div>
+
+                <!-- npblog -->
+                <div class="bg-white rounded-2xl border border-slate-200 shadow-sm hover:shadow-md transition duration-200 flex flex-col overflow-hidden">
+                    <div class="p-6 flex-grow flex flex-col">
+                        <div class="flex items-center space-x-3 mb-4">
+                            <div class="w-12 h-12 text-rose-600 rounded-xl flex items-center justify-center overflow-hidden">
+                                <img src="../npblog/icon.png" alt="npblogアイコン" class="w-full h-full object-contain">
+                            </div>
+                            <div>
+                                <h3 class="text-xl font-bold text-slate-900">npblog</h3>
+                                <span class="text-xs font-medium px-2 py-0.5 rounded" style="background-color: #FEE7F0; color: #B8225C;">野球観戦記録</span>
+                            </div>
+                        </div>
+                        <p class="text-slate-600 text-sm leading-relaxed mb-4">
+                            応援球団の試合観戦記録とスコア・勝率などを管理できます。
+                        </p>
+
+                        <!-- ミニプレビュー -->
+                        <div class="mt-auto pt-2 pb-2">
+                            <div class="flex justify-center gap-2">
+                                <div onclick="openImageModal('npblog', 0)" class="bg-slate-50 rounded-lg overflow-hidden border border-slate-200 aspect-[9/16] w-[calc((100%-16px)/3)] cursor-pointer hover:opacity-90 transition flex items-center justify-center">
+                                    <img src="./images/npblog2.png" alt="npblogプレビュー1" class="w-full h-full object-contain">
+                                </div>
+                                <div onclick="openImageModal('npblog', 1)" class="bg-slate-50 rounded-lg overflow-hidden border border-slate-200 aspect-[9/16] w-[calc((100%-16px)/3)] cursor-pointer hover:opacity-90 transition flex items-center justify-center">
+                                    <img src="./images/npblog5.png" alt="npblogプレビュー2" class="w-full h-full object-contain">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="px-6 pb-6 pt-0 flex gap-2">
+                        <button onclick="openModal('npblog-modal')" data-button-name="npblog_detail" class="track-btn flex-1 bg-slate-100 hover:bg-slate-200 text-slate-800 font-medium py-2.5 rounded-xl text-sm transition duration-200">
+                            詳細・操作方法
+                        </button>
+                        <a href="https://shuminolog.github.io/app/npblog/" target="_blank" rel="noopener noreferrer" data-button-name="npblog_link" class="track-btn bg-indigo-600 hover:bg-indigo-700 text-white font-medium px-4 py-2.5 rounded-xl text-sm transition duration-200 flex items-center justify-center">
+                            開く →
+                        </a>
+                    </div>
+                </div>
+
+                <!-- horselog -->
+                <div class="bg-white rounded-2xl border border-slate-200 shadow-sm hover:shadow-md transition duration-200 flex flex-col overflow-hidden">
+                    <div class="p-6 flex-grow flex flex-col">
+                        <div class="flex items-center space-x-3 mb-4">
+                            <div class="w-12 h-12 text-emerald-600 rounded-xl flex items-center justify-center overflow-hidden">
+                                <img src="../horselog/icon.png" alt="horselogアイコン" class="w-full h-full object-contain">
+                            </div>
+                            <div>
+                                <h3 class="text-xl font-bold text-slate-900">horselog</h3>
+                                <span class="text-xs font-medium px-2 py-0.5 rounded" style="background-color: #E9F5EA; color: #1B6E22;">出資馬検討</span>
+                            </div>
+                        </div>
+                        <p class="text-slate-600 text-sm leading-relaxed mb-4">
+                            出資検討馬の血統・価格・評価などをまとめて管理できます。
+                        </p>
+
+                        <!-- ミニプレビュー -->
+                        <div class="mt-auto pt-2 pb-2">
+                            <div class="flex justify-center gap-2">
+                                <div onclick="openImageModal('horselog', 0)" class="bg-slate-50 rounded-lg overflow-hidden border border-slate-200 aspect-[9/16] w-[calc((100%-16px)/3)] cursor-pointer hover:opacity-90 transition flex items-center justify-center">
+                                    <img src="./images/horselog1.png" alt="horselogプレビュー1" class="w-full h-full object-contain">
+                                </div>
+                                <div onclick="openImageModal('horselog', 1)" class="bg-slate-50 rounded-lg overflow-hidden border border-slate-200 aspect-[9/16] w-[calc((100%-16px)/3)] cursor-pointer hover:opacity-90 transition flex items-center justify-center">
+                                    <img src="./images/horselog3.png" alt="horselogプレビュー2" class="w-full h-full object-contain">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="px-6 pb-6 pt-0 flex gap-2">
+                        <button onclick="openModal('horselog-modal')" data-button-name="horselog_detail" class="track-btn flex-1 bg-slate-100 hover:bg-slate-200 text-slate-800 font-medium py-2.5 rounded-xl text-sm transition duration-200">
+                            詳細・操作方法
+                        </button>
+                        <a href="https://shuminolog.github.io/app/horselog/" target="_blank" rel="noopener noreferrer" data-button-name="horselog_link" class="track-btn bg-indigo-600 hover:bg-indigo-700 text-white font-medium px-4 py-2.5 rounded-xl text-sm transition duration-200 flex items-center justify-center">
+                            開く →
+                        </a>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+        <!-- PWA化手順セクション -->
+        <section id="pwa-guide" class="bg-white border-t border-slate-200 py-16 px-4">
+            <div class="max-w-4xl mx-auto">
+                <div class="text-center mb-8">
+                    <span class="bg-indigo-100 text-indigo-700 text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider">PWA Support</span>
+                    <h2 class="text-2xl sm:text-3xl font-bold text-slate-900 mt-3 mb-2">スマホにアプリとして<br class="block sm:hidden">インストールする方法</h2>
+                    <p class="text-slate-600 text-sm sm:text-base leading-relaxed mb-4">
+                        PWA（プログレッシブ・ウェブ・アプリ）に対応しており、ブラウザから<br class="hidden sm:block">ホーム画面に追加することで、通常のアプリと同じように<br class="hidden sm:block">全画面で快適にご利用いただけます。
+                    </p>
+                </div>
+
+                <div class="flex justify-center">
+                    <div class="bg-slate-50 p-6 sm:p-8 rounded-2xl border border-slate-200 shadow-sm max-w-xl w-full">
+                        <div class="flex items-center space-x-3 mb-4">
+                            <span class="text-2xl">🍏</span>
+                            <h3 class="text-lg font-bold text-slate-900">iPhone (Safari)</h3>
+                        </div>
+                        <ol class="space-y-3 text-sm text-slate-600 list-decimal list-inside leading-relaxed">
+                            <li>Safariで対象のアプリページを開きます。</li>
+                            <li>画面下部にある<strong class="text-slate-900">「共有」ボタン</strong>（四角から矢印が出ているアイコン）をタップします。</li>
+                            <li>メニューからスクロールして<strong class="text-slate-900">「ホーム画面に追加」</strong>を選択します。</li>
+                            <li>環境や設定によっては、<strong class="text-slate-900">「Webアプリとして追加」</strong>の項目をオンに設定します。</li>
+                            <li>右上の<strong class="text-slate-900">「追加」</strong>をタップすると、ホーム画面にアプリのアイコンが作成されます。</li>
+                        </ol>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 共通バックアップ＆データ管理セクション -->
+        <section id="backup-guide" class="bg-slate-100 border-t border-slate-200 py-16 px-4">
+            <div class="max-w-4xl mx-auto">
+                <div class="text-center mb-12">
+                    <span class="bg-indigo-100 text-indigo-700 text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider">Data Security</span>
+                    <h2 class="text-2xl sm:text-3xl font-bold text-slate-900 mt-3 mb-2">安心のデータ管理と<br class="block sm:hidden">共通JSONバックアップ</h2>
+                    <p class="text-slate-600 text-sm sm:text-base leading-relaxed">
+                        すべてのアプリで共通して、プライバシーを守る安全なローカル保存と、<br class="hidden sm:block">ブラウザの仕様による削除に備えたJSONファイルバックアップ機能に対応しています。
+                    </p>
+                </div>
+
+                <div class="space-y-6">
+                    <div class="bg-emerald-50 border border-emerald-200 rounded-2xl p-6 text-emerald-900 text-sm leading-relaxed">
+                        <h4 class="font-bold flex items-center gap-2 mb-2 text-emerald-950">
+                            <span>🔒</span> 安心のローカル保存
+                        </h4>
+                        <p>
+                            データはすべてお使いの端末（ブラウザ）の<strong class="text-emerald-950">ローカル環境に直接保存される仕組み</strong>になっています。サーバーに個人情報を送信しないため、プライバシーの面でも安心してご利用いただけます。
+                        </p>
+                    </div>
+
+                    <div class="bg-amber-50 border border-amber-200 rounded-2xl p-6 text-amber-900 text-sm leading-relaxed">
+                        <h4 class="font-bold flex items-center gap-2 mb-2 text-amber-950">
+                            <span>⚠️</span> ブラウザ仕様による削除に備えたバックアップ推奨
+                        </h4>
+                        <p>
+                            端末内に安全に保存されますが、<strong class="text-amber-950">ブラウザの仕様やストレージの容量制限、長期間の未利用などによってデータが削除されてしまうケース</strong>があります。万が一のデータ消失を防ぐため、全アプリ共通で<strong class="text-amber-950">JSONファイルのエクスポート（バックアップ）とインポート（復元）機能</strong>を搭載しています。定期的なバックアップでいつでも安全にデータの引き継ぎが可能です。
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- フッター -->
+    <footer class="bg-white border-t border-slate-200 py-8 text-center text-slate-500 text-sm">
+        <div class="max-w-5xl mx-auto px-4 space-y-2">
+            <p>&copy; Shuminolog All Rights Reserved.</p>
+            <p class="pt-2 text-xs text-slate-400">※当サイトおよび各アプリケーションは個人の趣味で開発・運営しているものです。データの保管やバックアップは各自の責任で行っていただき、利用に伴う不具合やデータ消失等についてはあらかじめご了承の上ご利用ください。</p>
+        </div>
+    </footer>
+
+
+    <!-- ==========================================
+         画像単体拡大用モーダル (ライトボックス)
+         ================================---------- -->
+    <div id="image-modal" class="fixed inset-0 z-50 hidden bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-8 sm:p-12">
+        <div class="relative inline-flex items-center justify-center max-w-full max-h-[90vh]" onclick="event.stopPropagation()">
+            <button onclick="closeImageModal()" class="absolute -top-3 -right-3 sm:-top-10 sm:-right-3 text-white hover:text-slate-300 w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-slate-800/50 hover:bg-slate-800/80 flex items-center justify-center text-lg sm:text-xl font-bold transition z-30 shadow-lg" aria-label="閉じる">
+                ✕
+            </button>
+            <button onclick="changeImageModalSlide(-1)" class="absolute -left-12 sm:-left-12 top-1/2 -translate-y-1/2 text-white hover:text-slate-300 w-10 h-10 rounded-full bg-slate-800/50 hover:bg-slate-800/80 flex items-center justify-center text-xl font-bold transition z-30 shadow-lg leading-none" aria-label="前の画像">
+                ‹
+            </button>
+            <img id="modal-target-img" src="" alt="拡大画像" class="max-h-[85vh] w-auto max-w-full object-contain rounded-xl shadow-2xl bg-slate-50">
+            <button onclick="changeImageModalSlide(1)" class="absolute -right-12 sm:-right-12 top-1/2 -translate-y-1/2 text-white hover:text-slate-300 w-10 h-10 rounded-full bg-slate-800/50 hover:bg-slate-800/80 flex items-center justify-center text-xl font-bold transition z-30 shadow-lg leading-none" aria-label="次の画像">
+                ›
+            </button>
+        </div>
+    </div>
+
+
+    <!-- ==========================================
+         モーダルウィンドウ群（詳細・操作方法用）
+         ================================---------- -->
+
+    <!-- talklog モーダル -->
+    <div id="talklog-modal" class="fixed inset-0 z-50 hidden bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-3 overflow-y-auto">
+        <div class="bg-white rounded-3xl max-w-xl w-full max-h-[92vh] overflow-y-auto p-4 sm:p-6 relative shadow-2xl" onclick="event.stopPropagation()">
+            <button onclick="closeModal('talklog-modal')" class="absolute top-3 right-3 sm:top-4 sm:right-4 text-slate-400 hover:text-slate-700 w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-slate-100 flex items-center justify-center text-sm font-bold transition z-20">
+                ✕
+            </button>
+            
+            <div class="mb-4 sm:mb-6 pr-10">
+                <span class="text-[10px] font-medium px-2.5 py-0.5 rounded" style="background-color: #EDF1FC; color: #3553B3;">talklog の詳細</span>
+                <h3 class="text-sm sm:text-base font-bold text-slate-900 mt-1">ミーグリ等の会話をスマートに記録</h3>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-3 items-center" data-carousel="talklog">
+                <div class="flex flex-col items-center px-12 md:px-0 relative">
+                    <div class="carousel-bg-container w-full max-w-[170px] sm:max-w-[240px] mx-auto rounded-xl overflow-hidden border border-slate-300 shadow-sm aspect-[9/16] relative flex items-center justify-center transition-colors duration-200" style="background-color: #7C7C7E;">
+                        <img src="./images/talklog1.png" data-bg-color="#f8fafc" alt="talklog操作1" class="carousel-img w-full h-full object-contain">
+                        <img src="./images/talklog2.png" data-bg-color="#b5b7b8" alt="talklog操作2" class="carousel-img w-full h-full object-contain hidden">
+                        <img src="./images/talklog3.png" data-bg-color="#f8fafc" alt="talklog操作3" class="carousel-img w-full h-full object-contain hidden">
+                        <img src="./images/talklog4.png" data-bg-color="#b5b7b8" alt="talklog操作4" class="carousel-img w-full h-full object-contain hidden">
+                        <img src="./images/talklog5.png" data-bg-color="#f8fafc" alt="talklog操作5" class="carousel-img w-full h-full object-contain hidden">
+                        <img src="./images/talklog6.png" data-bg-color="#b5b7b8" alt="talklog操作6" class="carousel-img w-full h-full object-contain hidden">
+                        <img src="./images/talklog7.png" data-bg-color="#b5b7b8" alt="talklog操作7" class="carousel-img w-full h-full object-contain hidden">
+                        <img src="./images/talklog8.png" data-bg-color="#f8fafc" alt="talklog操作8" class="carousel-img w-full h-full object-contain hidden">
+                        <img src="./images/talklog9.png" data-bg-color="#ebeaef" alt="talklog操作9" class="carousel-img w-full h-full object-contain hidden">
+                    </div>
+
+                    <button onclick="changeSlide('talklog', -1)" class="absolute -left-1 top-1/2 -translate-y-1/2 p-2 md:hidden z-20" aria-label="前へ">
+                        <span class="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-slate-100 text-slate-700 flex items-center justify-center text-sm font-bold transition shadow-sm leading-none">‹</span>
+                    </button>
+                    <button onclick="changeSlide('talklog', 1)" class="absolute -right-1 top-1/2 -translate-y-1/2 p-2 md:hidden z-20" aria-label="次へ">
+                        <span class="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-slate-100 text-slate-700 flex items-center justify-center text-sm font-bold transition shadow-sm leading-none">›</span>
+                    </button>
+
+                    <div class="mt-2.5 flex items-center justify-center gap-4">
+                        <button onclick="changeSlide('talklog', -1)" class="hidden md:flex w-7 h-7 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-700 items-center justify-center text-sm font-bold transition shadow-sm leading-none" aria-label="前へ">‹</button>
+                        <span class="carousel-indicator text-xs text-slate-500 font-medium">1 / 9</span>
+                        <button onclick="changeSlide('talklog', 1)" class="hidden md:flex w-7 h-7 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-700 items-center justify-center text-sm font-bold transition shadow-sm leading-none" aria-label="次へ">›</button>
+                    </div>
+                </div>
+
+                <div class="space-y-1 sm:space-y-4 text-xs sm:text-sm text-slate-600">
+                    <div class="carousel-text-container min-h-[70px] sm:min-h-[90px] flex items-center">
+                        <div class="carousel-text space-y-1">
+                            <strong class="text-slate-800 block text-xs sm:text-sm">1. メンバー管理</strong>
+                            <p class="leading-relaxed">メンバーごとにイベントを管理できます。</p>
+                        </div>
+                        <div class="carousel-text space-y-1 hidden">
+                            <strong class="text-slate-800 block text-xs sm:text-sm">2. メンバーの登録</strong>
+                            <p class="leading-relaxed">名前・グループ名・アイコン登録を行います。</p>
+                        </div>
+                        <div class="carousel-text space-y-1 hidden">
+                            <strong class="text-slate-800 block text-xs sm:text-sm">3. イベント管理</strong>
+                            <p class="leading-relaxed">イベントの一覧から会場名などで検索も可能です。</p>
+                        </div>
+                        <div class="carousel-text space-y-1 hidden">
+                            <strong class="text-slate-800 block text-xs sm:text-sm">4. イベント（トークルーム）の作成</strong>
+                            <p class="leading-relaxed">日付・場所・部・枚数を設定して作成します。</p>
+                        </div>
+                        <div class="carousel-text space-y-1 hidden">
+                            <strong class="text-slate-800 block text-xs sm:text-sm">5. メッセージの登録</strong>
+                            <p class="leading-relaxed">送信元はアイコンをタップで変更できます。編集や並び替えも可能です。</p>
+                        </div>
+                        <div class="carousel-text space-y-1 hidden">
+                            <strong class="text-slate-800 block text-xs sm:text-sm">6. アルバム管理</strong>
+                            <p class="leading-relaxed">トーク画面に関連する画像やアルバムを管理します。</p>
+                        </div>
+                        <div class="carousel-text space-y-1 hidden">
+                            <strong class="text-slate-800 block text-xs sm:text-sm">7. 画像出力</strong>
+                            <p class="leading-relaxed">作成したトーク画面の画像出力が可能です。</p>
+                        </div>
+                        <div class="carousel-text space-y-1 hidden">
+                            <strong class="text-slate-800 block text-xs sm:text-sm">8. データのバックアップ (推奨)</strong>
+                            <p class="leading-relaxed">ブラウザのデータ消失に備えて、定期的な<strong class="text-slate-800">JSONファイルのエクスポート（バックアップ）</strong>を行うことを強く推奨します。</p>
+                        </div>
+                        <div class="carousel-text space-y-1 hidden">
+                            <strong class="text-slate-800 block text-xs sm:text-sm">9. ホーム画面に追加して快適利用 (推奨)</strong>
+                            <p class="leading-relaxed">ブラウザのメニューから<strong class="text-slate-800">「ホーム画面に追加」</strong>を行うことで、通常のアプリのように全画面で快適にご利用いただけます。</p>
+                        </div>
+                    </div>
+                    <div>
+                        <a href="https://shuminolog.github.io/app/talklog/" target="_blank" rel="noopener noreferrer" data-button-name="talklog_link" class="track-btn block w-full text-center bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-2.5 rounded-xl transition text-xs sm:text-sm shadow-sm">
+                            talklog を使ってみる →
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- maillog モーダル -->
+    <div id="maillog-modal" class="fixed inset-0 z-50 hidden bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-3 overflow-y-auto">
+        <div class="bg-white rounded-3xl max-w-xl w-full max-h-[92vh] overflow-y-auto p-4 sm:p-6 relative shadow-2xl" onclick="event.stopPropagation()">
+            <button onclick="closeModal('maillog-modal')" class="absolute top-3 right-3 sm:top-4 sm:right-4 text-slate-400 hover:text-slate-700 w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-slate-100 flex items-center justify-center text-sm font-bold transition z-20">
+                ✕
+            </button>
+            
+            <div class="mb-4 sm:mb-6 pr-10">
+                <span class="text-[10px] font-medium px-2.5 py-0.5 rounded" style="background-color: #FEF3D6; color: #9A6C00;">maillog の詳細</span>
+                <h3 class="text-sm sm:text-base font-bold text-slate-900 mt-1">ラジオメールの採用履歴をスマートに管理</h3>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-3 items-center" data-carousel="maillog">
+                <div class="flex flex-col items-center px-12 md:px-0 relative">
+                    <div class="carousel-bg-container w-full max-w-[170px] sm:max-w-[240px] mx-auto rounded-xl overflow-hidden border border-slate-300 shadow-sm aspect-[9/16] relative flex items-center justify-center transition-colors duration-200" style="background-color: #7C7C7E;">
+                        <img src="./images/maillog1.png" data-bg-color="#f8fafc" alt="maillog操作1" class="carousel-img w-full h-full object-contain">
+                        <img src="./images/maillog2.png" data-bg-color="#b5b7b8" alt="maillog操作2" class="carousel-img w-full h-full object-contain hidden">
+                        <img src="./images/maillog3.png" data-bg-color="#f8fafc" alt="maillog操作3" class="carousel-img w-full h-full object-contain hidden">
+                        <img src="./images/maillog4.png" data-bg-color="#b5b7b8" alt="maillog操作4" class="carousel-img w-full h-full object-contain hidden">
+                        <img src="./images/maillog5.png" data-bg-color="#b5b7b8" alt="maillog操作5" class="carousel-img w-full h-full object-contain hidden">
+                        <img src="./images/maillog6.png" data-bg-color="#f8fafc" alt="maillog操作6" class="carousel-img w-full h-full object-contain hidden">
+                        <img src="./images/maillog7.png" data-bg-color="#f8fafc" alt="maillog操作7" class="carousel-img w-full h-full object-contain hidden">
+                        <img src="./images/maillog8.png" data-bg-color="#ebeaef" alt="maillog操作8" class="carousel-img w-full h-full object-contain hidden">
+                    </div>
+
+                    <button onclick="changeSlide('maillog', -1)" class="absolute -left-1 top-1/2 -translate-y-1/2 p-2 md:hidden z-20" aria-label="前へ">
+                        <span class="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-slate-100 text-slate-700 flex items-center justify-center text-sm font-bold transition shadow-sm leading-none">‹</span>
+                    </button>
+                    <button onclick="changeSlide('maillog', 1)" class="absolute -right-1 top-1/2 -translate-y-1/2 p-2 md:hidden z-20" aria-label="次へ">
+                        <span class="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-slate-100 text-slate-700 flex items-center justify-center text-sm font-bold transition shadow-sm leading-none">›</span>
+                    </button>
+
+                    <div class="mt-2.5 flex items-center justify-center gap-4">
+                        <button onclick="changeSlide('maillog', -1)" class="hidden md:flex w-7 h-7 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-700 items-center justify-center text-sm font-bold transition shadow-sm leading-none" aria-label="前へ">‹</button>
+                        <span class="carousel-indicator text-xs text-slate-500 font-medium">1 / 8</span>
+                        <button onclick="changeSlide('maillog', 1)" class="hidden md:flex w-7 h-7 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-700 items-center justify-center text-sm font-bold transition shadow-sm leading-none" aria-label="次へ">›</button>
+                    </div>
+                </div>
+
+                <div class="space-y-1 sm:space-y-4 text-xs sm:text-sm text-slate-600">
+                    <div class="carousel-text-container min-h-[70px] sm:min-h-[90px] flex items-center">
+                        <div class="carousel-text space-y-1">
+                            <strong class="text-slate-800 block text-xs sm:text-sm">1. 番組管理</strong>
+                            <p class="leading-relaxed">番組ごとにメールを管理できます。</p>
+                        </div>
+                        <div class="carousel-text space-y-1 hidden">
+                            <strong class="text-slate-800 block text-xs sm:text-sm">2. 番組の登録</strong>
+                            <p class="leading-relaxed">番組名・パーソナリティ・放送局などを登録します。</p>
+                        </div>
+                        <div class="carousel-text space-y-1 hidden">
+                            <strong class="text-slate-800 block text-xs sm:text-sm">3. 放送回の管理</strong>
+                            <p class="leading-relaxed">放送回の一覧です。年度ごとのデータを絞り込んで確認できます。</p>
+                        </div>
+                        <div class="carousel-text space-y-1 hidden">
+                            <strong class="text-slate-800 block text-xs sm:text-sm">4. 採用数合計の確認</strong>
+                            <p class="leading-relaxed">コーナーごとの採用数も確認できます。</p>
+                        </div>
+                        <div class="carousel-text space-y-1 hidden">
+                            <strong class="text-slate-800 block text-xs sm:text-sm">5. 放送回の追加</strong>
+                            <p class="leading-relaxed">放送日や関連するメモを登録します。</p>
+                        </div>
+                        <div class="carousel-text space-y-1 hidden">
+                            <strong class="text-slate-800 block text-xs sm:text-sm">6. メールの登録</strong>
+                            <p class="leading-relaxed">コーナー名・内容・パーソナリティの反応や感想を登録します。</p>
+                        </div>
+                        <div class="carousel-text space-y-1 hidden">
+                            <strong class="text-slate-800 block text-xs sm:text-sm">7. データのバックアップ (推奨)</strong>
+                            <p class="leading-relaxed">ブラウザのデータ消失に備えて、定期的な<strong class="text-slate-800">JSONファイルのエクスポート（バックアップ）</strong>を行うことを強く推奨します。</p>
+                        </div>
+                        <div class="carousel-text space-y-1 hidden">
+                            <strong class="text-slate-800 block text-xs sm:text-sm">8. ホーム画面に追加して快適利用 (推奨)</strong>
+                            <p class="leading-relaxed">ブラウザのメニューから<strong class="text-slate-800">「ホーム画面に追加」</strong>を行うことで、通常のアプリのように全画面で快適にご利用いただけます。</p>
+                        </div>
+                    </div>
+                    <div>
+                        <a href="https://shuminolog.github.io/app/maillog/" target="_blank" rel="noopener noreferrer" data-button-name="maillog_link" class="track-btn block w-full text-center bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-2.5 rounded-xl transition text-xs sm:text-sm shadow-sm">
+                            maillog を使ってみる →
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- npblog モーダル -->
+    <div id="npblog-modal" class="fixed inset-0 z-50 hidden bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-3 overflow-y-auto">
+        <div class="bg-white rounded-3xl max-w-xl w-full max-h-[92vh] overflow-y-auto p-4 sm:p-6 relative shadow-2xl" onclick="event.stopPropagation()">
+            <button onclick="closeModal('npblog-modal')" class="absolute top-3 right-3 sm:top-4 sm:right-4 text-slate-400 hover:text-slate-700 w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-slate-100 flex items-center justify-center text-sm font-bold transition z-20">
+                ✕
+            </button>
+            
+            <div class="mb-4 sm:mb-6 pr-10">
+                <span class="text-[10px] font-medium px-2.5 py-0.5 rounded" style="background-color: #FEE7F0; color: #B8225C;">npblog の詳細</span>
+                <h3 class="text-sm sm:text-base font-bold text-slate-900 mt-1">プロ野球（NPB）の観戦記録をスマートに管理</h3>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-3 items-center" data-carousel="npblog">
+                <div class="flex flex-col items-center px-12 md:px-0 relative">
+                    <div class="carousel-bg-container w-full max-w-[170px] sm:max-w-[240px] mx-auto rounded-xl overflow-hidden border border-slate-300 shadow-sm aspect-[9/16] relative flex items-center justify-center transition-colors duration-200" style="background-color: #7C7C7E;">
+                        <img src="./images/npblog1.png" data-bg-color="#b5b7b8" alt="npblog操作1" class="carousel-img w-full h-full object-contain">
+                        <img src="./images/npblog2.png" data-bg-color="#f8fafc" alt="npblog操作2" class="carousel-img w-full h-full object-contain hidden">
+                        <img src="./images/npblog3.png" data-bg-color="#b5b7b8" alt="npblog操作3" class="carousel-img w-full h-full object-contain hidden">
+                        <img src="./images/npblog4.png" data-bg-color="#b5b7b8" alt="npblog操作4" class="carousel-img w-full h-full object-contain hidden">
+                        <img src="./images/npblog5.png" data-bg-color="#f8fafc" alt="npblog操作5" class="carousel-img w-full h-full object-contain hidden">
+                        <img src="./images/npblog6.png" data-bg-color="#f8fafc" alt="npblog操作6" class="carousel-img w-full h-full object-contain hidden">
+                        <img src="./images/npblog7.png" data-bg-color="#ebeaef" alt="npblog操作7" class="carousel-img w-full h-full object-contain hidden">
+                    </div>
+
+                    <button onclick="changeSlide('npblog', -1)" class="absolute -left-1 top-1/2 -translate-y-1/2 p-2 md:hidden z-20" aria-label="前へ">
+                        <span class="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-slate-100 text-slate-700 flex items-center justify-center text-sm font-bold transition shadow-sm leading-none">‹</span>
+                    </button>
+                    <button onclick="changeSlide('npblog', 1)" class="absolute -right-1 top-1/2 -translate-y-1/2 p-2 md:hidden z-20" aria-label="次へ">
+                        <span class="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-slate-100 text-slate-700 flex items-center justify-center text-sm font-bold transition shadow-sm leading-none">›</span>
+                    </button>
+
+                    <div class="mt-2.5 flex items-center justify-center gap-4">
+                        <button onclick="changeSlide('npblog', -1)" class="hidden md:flex w-7 h-7 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-700 items-center justify-center text-sm font-bold transition shadow-sm leading-none" aria-label="前へ">‹</button>
+                        <span class="carousel-indicator text-xs text-slate-500 font-medium">1 / 7</span>
+                        <button onclick="changeSlide('npblog', 1)" class="hidden md:flex w-7 h-7 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-700 items-center justify-center text-sm font-bold transition shadow-sm leading-none" aria-label="次へ">›</button>
+                    </div>
+                </div>
+
+                <div class="space-y-1 sm:space-y-4 text-xs sm:text-sm text-slate-600">
+                    <div class="carousel-text-container min-h-[70px] sm:min-h-[90px] flex items-center">
+                        <div class="carousel-text space-y-1">
+                            <strong class="text-slate-800 block text-xs sm:text-sm">1. 応援チームの登録</strong>
+                            <p class="leading-relaxed">12球団プリセットから応援チームの登録を行います。</p>
+                        </div>
+                        <div class="carousel-text space-y-1 hidden">
+                            <strong class="text-slate-800 block text-xs sm:text-sm">2. 試合管理</strong>
+                            <p class="leading-relaxed">シーズン・ホーム/ビジターごとの勝率も確認できます。</p>
+                        </div>
+                        <div class="carousel-text space-y-1 hidden">
+                            <strong class="text-slate-800 block text-xs sm:text-sm">3. 試合の追加</strong>
+                            <p class="leading-relaxed">日付・対戦相手・ホーム/ビジターを指定して試合を追加します。</p>
+                        </div>
+                        <div class="carousel-text space-y-1 hidden">
+                            <strong class="text-slate-800 block text-xs sm:text-sm">4. スコア入力</strong>
+                            <p class="leading-relaxed">イニング別スコアを入力します。総得点と勝敗は自動で算出されます。</p>
+                        </div>
+                        <div class="carousel-text space-y-1 hidden">
+                            <strong class="text-slate-800 block text-xs sm:text-sm">5. 現地写真の管理</strong>
+                            <p class="leading-relaxed">観戦時の思い出や現地写真の管理を行います。</p>
+                        </div>
+                        <div class="carousel-text space-y-1 hidden">
+                            <strong class="text-slate-800 block text-xs sm:text-sm">6. データのバックアップ (推奨)</strong>
+                            <p class="leading-relaxed">ブラウザのデータ消失に備えて、定期的な<strong class="text-slate-800">JSONファイルのエクスポート（バックアップ）</strong>を行うことを強く推奨します。</p>
+                        </div>
+                        <div class="carousel-text space-y-1 hidden">
+                            <strong class="text-slate-800 block text-xs sm:text-sm">7. ホーム画面に追加して快適利用 (推奨)</strong>
+                            <p class="leading-relaxed">ブラウザのメニューから<strong class="text-slate-800">「ホーム画面に追加」</strong>を行うことで、通常のアプリのように全画面で快適にご利用いただけます。</p>
+                        </div>
+                    </div>
+                    <div>
+                        <a href="https://shuminolog.github.io/app/npblog/" target="_blank" rel="noopener noreferrer" data-button-name="npblog_link" class="track-btn block w-full text-center bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-2.5 rounded-xl transition text-xs sm:text-sm shadow-sm">
+                            npblog を使ってみる →
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- horselog モーダル -->
+    <div id="horselog-modal" class="fixed inset-0 z-50 hidden bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-3 overflow-y-auto">
+        <div class="bg-white rounded-3xl max-w-xl w-full max-h-[92vh] overflow-y-auto p-4 sm:p-6 relative shadow-2xl" onclick="event.stopPropagation()">
+            <button onclick="closeModal('horselog-modal')" class="absolute top-3 right-3 sm:top-4 sm:right-4 text-slate-400 hover:text-slate-700 w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-slate-100 flex items-center justify-center text-sm font-bold transition z-20">
+                ✕
+            </button>
+            
+            <div class="mb-4 sm:mb-6 pr-10">
+                <span class="text-[10px] font-medium px-2.5 py-0.5 rounded" style="background-color: #E9F5EA; color: #1B6E22;">horselog の詳細</span>
+                <h3 class="text-sm sm:text-base font-bold text-slate-900 mt-1">競走馬の出資検討をスマートに管理</h3>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-3 items-center" data-carousel="horselog">
+                <div class="flex flex-col items-center px-12 md:px-0 relative">
+                    <div class="carousel-bg-container w-full max-w-[170px] sm:max-w-[240px] mx-auto rounded-xl overflow-hidden border border-slate-300 shadow-sm aspect-[9/16] relative flex items-center justify-center transition-colors duration-200" style="background-color: #7C7C7E;">
+                        <img src="./images/horselog1.png" data-bg-color="#f8fafc" alt="horselog操作1" class="carousel-img w-full h-full object-contain">
+                        <img src="./images/horselog2.png" data-bg-color="#b5b7b8" alt="horselog操作2" class="carousel-img w-full h-full object-contain hidden">
+                        <img src="./images/horselog3.png" data-bg-color="#f8fafc" alt="horselog操作3" class="carousel-img w-full h-full object-contain hidden">
+                        <img src="./images/horselog4.png" data-bg-color="#f8fafc" alt="horselog操作4" class="carousel-img w-full h-full object-contain hidden">
+                        <img src="./images/horselog5.png" data-bg-color="#b5b7b8" alt="horselog操作5" class="carousel-img w-full h-full object-contain hidden">
+                        <img src="./images/horselog6.png" data-bg-color="#f8fafc" alt="horselog操作6" class="carousel-img w-full h-full object-contain hidden">
+                        <img src="./images/horselog7.png" data-bg-color="#ebeaef" alt="horselog操作7" class="carousel-img w-full h-full object-contain hidden">
+                    </div>
+
+                    <button onclick="changeSlide('horselog', -1)" class="absolute -left-1 top-1/2 -translate-y-1/2 p-2 md:hidden z-20" aria-label="前へ">
+                        <span class="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-slate-100 text-slate-700 flex items-center justify-center text-sm font-bold transition shadow-sm leading-none">‹</span>
+                    </button>
+                    <button onclick="changeSlide('horselog', 1)" class="absolute -right-1 top-1/2 -translate-y-1/2 p-2 md:hidden z-20" aria-label="次へ">
+                        <span class="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-slate-100 text-slate-700 flex items-center justify-center text-sm font-bold transition shadow-sm leading-none">›</span>
+                    </button>
+
+                    <div class="mt-2.5 flex items-center justify-center gap-4">
+                        <button onclick="changeSlide('horselog', -1)" class="hidden md:flex w-7 h-7 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-700 items-center justify-center text-sm font-bold transition shadow-sm leading-none" aria-label="前へ">‹</button>
+                        <span class="carousel-indicator text-xs text-slate-500 font-medium">1 / 7</span>
+                        <button onclick="changeSlide('horselog', 1)" class="hidden md:flex w-7 h-7 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-700 items-center justify-center text-sm font-bold transition shadow-sm leading-none" aria-label="次へ">›</button>
+                    </div>
+                </div>
+
+                <div class="space-y-1 sm:space-y-4 text-xs sm:text-sm text-slate-600">
+                    <div class="carousel-text-container min-h-[70px] sm:min-h-[90px] flex items-center">
+                        <div class="carousel-text space-y-1">
+                            <strong class="text-slate-800 block text-xs sm:text-sm">1. ステータス管理とフィルター</strong>
+                            <p class="leading-relaxed">出資／検討中／見送りのステータスやクラブ・年度でのフィルターが可能です。</p>
+                        </div>
+                        <div class="carousel-text space-y-1 hidden">
+                            <strong class="text-slate-800 block text-xs sm:text-sm">2. 検討馬の登録</strong>
+                            <p class="leading-relaxed">クラブ・馬名・血統・価格などを登録します。</p>
+                        </div>
+                        <div class="carousel-text space-y-1 hidden">
+                            <strong class="text-slate-800 block text-xs sm:text-sm">3. 検討馬データ</strong>
+                            <p class="leading-relaxed">各種情報の確認とステータスの管理ができます。</p>
+                        </div>
+                        <div class="carousel-text space-y-1 hidden">
+                            <strong class="text-slate-800 block text-xs sm:text-sm">4. 評価項目</strong>
+                            <p class="leading-relaxed">各種評価とメモ、馬体写真も登録できます。</p>
+                        </div>
+                        <div class="carousel-text space-y-1 hidden">
+                            <strong class="text-slate-800 block text-xs sm:text-sm">5. 評価項目のカスタマイズ</strong>
+                            <p class="leading-relaxed">評価項目は最大7項目で自由にカスタマイズできます。</p>
+                        </div>
+                        <div class="carousel-text space-y-1 hidden">
+                            <strong class="text-slate-800 block text-xs sm:text-sm">6. データのバックアップ (推奨)</strong>
+                            <p class="leading-relaxed">ブラウザのデータ消失に備えて、定期的な<strong class="text-slate-800">JSONファイルのエクスポート（バックアップ）</strong>を行うことを強く推奨します。</p>
+                        </div>
+                        <div class="carousel-text space-y-1 hidden">
+                            <strong class="text-slate-800 block text-xs sm:text-sm">7. ホーム画面に追加して快適利用 (推奨)</strong>
+                            <p class="leading-relaxed">ブラウザのメニューから<strong class="text-slate-800">「ホーム画面に追加」</strong>を行うことで、通常のアプリのように全画面で快適にご利用いただけます。</p>
+                        </div>
+                    </div>
+                    <div>
+                        <a href="https://shuminolog.github.io/app/horselog/" target="_blank" rel="noopener noreferrer" data-button-name="horselog_link" class="track-btn block w-full text-center bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-2.5 rounded-xl transition text-xs sm:text-sm shadow-sm">
+                            horselog を使ってみる →
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- スクリプト制御部 -->
+    <script>
+        // ハンバーガーメニュー制御
+        const hamburgerBtn = document.getElementById('hamburger-btn');
+        const mobileMenu = document.getElementById('mobile-menu');
+        if (hamburgerBtn && mobileMenu) {
+            hamburgerBtn.addEventListener('click', () => {
+                const isHidden = mobileMenu.classList.toggle('hidden');
+                hamburgerBtn.setAttribute('aria-expanded', String(!isHidden));
+            });
+            const mobileMenuLinks = document.querySelectorAll('.mobile-menu-link');
+            mobileMenuLinks.forEach(link => {
+                link.addEventListener('click', () => {
+                    mobileMenu.classList.add('hidden');
+                    hamburgerBtn.setAttribute('aria-expanded', 'false');
+                });
+            });
+        }
+
+        // アプリごとのプレビュー画像リスト定義
+        const appImages = {
+            talklog: ['./images/talklog1.png', './images/talklog3.png', './images/talklog5.png'],
+            maillog: ['./images/maillog1.png', './images/maillog3.png', './images/maillog6.png'],
+            npblog: ['./images/npblog2.png', './images/npblog5.png'],
+            horselog: ['./images/horselog1.png', './images/horselog3.png']
+        };
+
+        let currentModalApp = null;
+        let currentModalIndex = 0;
+
+        // 画像単体拡大モーダル制御
+        function openImageModal(appName, index) {
+            const modal = document.getElementById('image-modal');
+            const targetImg = document.getElementById('modal-target-img');
+            if (modal && targetImg && appImages[appName]) {
+                currentModalApp = appName;
+                currentModalIndex = index;
+                targetImg.src = appImages[currentModalApp][currentModalIndex];
+                modal.classList.remove('hidden');
+                document.body.style.overflow = 'hidden';
+            }
+        }
+
+        function changeImageModalSlide(direction) {
+            if (!currentModalApp || !appImages[currentModalApp]) return;
+            const images = appImages[currentModalApp];
+            currentModalIndex = (currentModalIndex + direction + images.length) % images.length;
+            const targetImg = document.getElementById('modal-target-img');
+            if (targetImg) {
+                targetImg.src = images[currentModalIndex];
+            }
+        }
+
+        function closeImageModal() {
+            const modal = document.getElementById('image-modal');
+            if (modal) {
+                modal.classList.add('hidden');
+                document.body.style.overflow = 'auto';
+                currentModalApp = null;
+            }
+        }
+
+        // カルーセル管理用オブジェクト
+        const carouselStates = {
+            talklog: { current: 0, total: 9 },
+            maillog: { current: 0, total: 8 },
+            npblog: { current: 0, total: 7 },
+            horselog: { current: 0, total: 7 }
+        };
+
+        function changeSlide(appName, direction) {
+            const state = carouselStates[appName];
+            if (!state) return;
+
+            state.current = (state.current + direction + state.total) % state.total;
+            updateCarousel(appName, state.current);
+        }
+
+        function updateCarousel(appName, targetIndex) {
+            const state = carouselStates[appName];
+            if (!state) return;
+
+            if (targetIndex !== undefined) {
+                state.current = targetIndex;
+            }
+
+            const container = document.querySelector(`[data-carousel="${appName}"]`);
+            if (!container) return;
+
+            const imgs = container.querySelectorAll('.carousel-img');
+            const texts = container.querySelectorAll('.carousel-text');
+            const indicator = container.querySelector('.carousel-indicator');
+            const bgContainer = container.querySelector('.carousel-bg-container');
+
+            imgs.forEach((img, idx) => {
+                if (idx === state.current) {
+                    img.classList.remove('hidden');
+                    const bgColor = img.getAttribute('data-bg-color');
+                    if (bgContainer && bgColor) {
+                        bgContainer.style.backgroundColor = bgColor;
+                    }
+                } else {
+                    img.classList.add('hidden');
+                }
+            });
+
+            texts.forEach((text, idx) => {
+                if (idx === state.current) {
+                    text.classList.remove('hidden');
+                } else {
+                    text.classList.add('hidden');
+                }
+            });
+
+            if (indicator) {
+                indicator.textContent = `${state.current + 1} / ${state.total}`;
+            }
+        }
+
+        function openModal(modalId) {
+            const modal = document.getElementById(modalId);
+            if (modal) {
+                modal.classList.remove('hidden');
+                document.body.style.overflow = 'hidden';
+
+                const appName = modalId.replace('-modal', '');
+                if (carouselStates[appName]) {
+                    updateCarousel(appName, carouselStates[appName].current);
+                }
+            }
+        }
+
+        function closeModal(modalId) {
+            const modal = document.getElementById(modalId);
+            if (modal) {
+                modal.classList.add('hidden');
+                document.body.style.overflow = 'auto';
+                
+                // モーダルを閉じたらハッシュをクリアする（任意）
+                if (window.location.hash === `#${modalId}`) {
+                    history.pushState("", document.title, window.location.pathname + window.location.search);
+                }
+            }
+        }
+
+        // 1. モーダル外（背景）タップで閉じる処理（イベントリスナーでの確実な実装）
+        document.querySelectorAll('[id$="-modal"]').forEach(modal => {
+            modal.addEventListener('click', (event) => {
+                if (event.target === modal) {
+                    if (modal.id === 'image-modal') {
+                        closeImageModal();
+                    } else {
+                        closeModal(modal.id);
+                    }
+                }
+            });
+        });
+
+        // 2. ページ読み込み時にアンカーリンク（ハッシュ）を検知してモーダルを開く処理
+        window.addEventListener('DOMContentLoaded', () => {
+            const hash = window.location.hash;
+            if (hash) {
+                const modalId = hash.substring(1); // '#' を取り除く
+                const targetModal = document.getElementById(modalId);
+                if (targetModal && modalId.endsWith('-modal')) {
+                    setTimeout(() => {
+                        openModal(modalId);
+                    }, 100);
+                }
+            }
+        });
+
+        // サービスワーカーの登録（PWA用）
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('./sw.js')
+                    .then(reg => console.log('Service Worker registered!'))
+                    .catch(err => console.log('Service Worker registration failed: ', err));
+            });
+        }
+
+        // GA4イベントトラッキング
+        const buttons = document.querySelectorAll('.track-btn');
+        buttons.forEach(button => {
+            button.addEventListener('click', function() {
+                const buttonName = this.getAttribute('data-button-name');
+                gtag('event', 'button_click', {
+                    'button_name': buttonName,
+                    'page_location': window.location.href
+                });
+            });
+        });
+    </script>
+</body>
+</html>

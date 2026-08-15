@@ -1,0 +1,1974 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <meta name="theme-color" content="#f8fafc">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <title>npblog</title>
+  <meta name="description" content="応援球団の試合観戦記録とスコア・勝率などを管理できます。">
+  <link rel="canonical" href="https://shuminolog.github.io/app/npblog/">
+  <meta name="robots" content="index, follow">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="shuminolog">
+  <meta property="og:title" content="npblog">
+  <meta property="og:description" content="応援球団の試合観戦記録とスコア・勝率などを管理できます。">
+  <meta property="og:url" content="https://shuminolog.github.io/app/npblog/">
+  <meta property="og:image" content="https://shuminolog.github.io/app/npblog/icon.png">
+  <meta property="og:locale" content="ja_JP">
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="npblog">
+  <meta name="twitter:description" content="応援球団の試合観戦記録とスコア・勝率などを管理できます。">
+  <meta name="twitter:image" content="https://shuminolog.github.io/app/npblog/icon.png">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Google tag (gtag.js) -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-K77LZSXZDR"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+
+    gtag('config', 'G-K77LZSXZDR');
+  </script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="apple-touch-icon" href="./icon.png">
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-color: #f8fafc;
+      --text-main: #334155;
+    }
+
+    body {
+      font-family: 'Noto Sans JP', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      -webkit-touch-callout: default;
+      -webkit-user-select: none;
+      user-select: none;
+      overflow: hidden;
+      position: fixed;
+      width: 100%;
+      height: 100%;
+      font-size: 15px;
+      /* 4. 上下のセーフエリア（ノッチやホームインジケータ）に対応 */
+      padding-top: env(safe-area-inset-top);
+      /* body側のpadding-bottomを削除してレイアウトの押し出しを防止 */
+      background-color: var(--bg-color);
+    }
+
+    /* モーダルがステータスバー（上の部分）まで確実に暗く覆うためのスタイル */
+    .modal-overlay {
+      position: fixed;
+      top: calc(0px - env(safe-area-inset-top, 0px));
+      right: 0;
+      bottom: 0;
+      left: 0;
+      padding-top: env(safe-area-inset-top, 0px);
+    }
+
+    input, textarea, select {
+      -webkit-user-select: text;
+      user-select: text;
+    }
+
+    ::-webkit-scrollbar {
+      width: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: transparent;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #cbd5e1;
+      border-radius: 3px;
+    }
+
+    .app-bg {
+      background-color: var(--bg-color);
+    }
+
+    .screen {
+      display: none;
+      flex-direction: column;
+      height: 100%;
+      width: 100%;
+      min-height: 0;
+      overflow: hidden;
+    }
+
+    .screen.active {
+      display: flex;
+    }
+
+    .dragging {
+      opacity: 0.4;
+    }
+  </style>
+</head>
+<body class="app-bg h-screen font-sans antialiased text-slate-800 flex items-center justify-center p-0 sm:p-4 text-[15px]">
+
+  <div id="mainAppContainer" class="app-bg w-full sm:max-w-md h-full sm:h-[844px] sm:rounded-[40px] sm:shadow-2xl flex flex-col overflow-hidden relative">
+
+    <!-- 1. チーム一覧 / 試合一覧統合画面 -->
+    <div id="screen-games" class="screen active">
+      <!-- 応援チーム選択をヘッダーに統合 -->
+      <div id="gameScreenHeaderContainer" class="p-4 flex items-center justify-between relative shrink-0 z-10 h-16 transition-colors duration-300">
+        <div class="relative">
+          <button onclick="toggleGlobalMenu(event)" class="w-9 h-9 flex items-center justify-center rounded-full text-slate-600 hover:bg-black/5 transition" aria-label="メニュー">
+            <i class="fa-solid fa-ellipsis-vertical"></i>
+          </button>
+          <div id="globalContextMenu" class="absolute left-0 mt-1 hidden bg-white rounded-xl shadow-xl py-1 z-50 text-xs w-52 overflow-hidden border border-slate-100 whitespace-nowrap">
+            <!-- 「新しい応援チームを追加」を「応援チームを編集」に変更 -->
+            <button onclick="openTeamListModal(); closeAllContextMenus();" class="w-full text-left px-3 py-2.5 hover:bg-slate-100 flex items-center gap-2 text-slate-700">
+              <i class="fa-solid fa-pen-to-square text-slate-400 w-4"></i> 応援チームを編集
+            </button>
+            <button onclick="exportBackup(); closeAllContextMenus();" class="w-full text-left px-3 py-2.5 hover:bg-slate-100 flex items-center gap-2 text-slate-700">
+              <i class="fa-solid fa-file-export text-slate-400 w-4"></i> バックアップを書き出す
+            </button>
+            <button onclick="document.getElementById('backupImportInput').click(); closeAllContextMenus();" class="w-full text-left px-3 py-2.5 hover:bg-slate-100 flex items-center gap-2 text-slate-700">
+              <i class="fa-solid fa-file-import text-slate-400 w-4"></i> バックアップを読み込む
+            </button>
+            <button onclick="location.reload(); closeAllContextMenus();" class="w-full text-left px-3 py-2.5 hover:bg-slate-100 flex items-center gap-2 text-slate-700">
+              <i class="fa-solid fa-rotate-right text-slate-400 w-4"></i> ページを再読み込み
+            </button>
+          </div>
+          <input type="file" id="backupImportInput" accept="application/json,.json" class="hidden" onchange="importBackup(event)">
+        </div>
+
+        <!-- ヘッダー中央のチーム選択セレクトボックス / 単一チーム名表示 -->
+        <div class="absolute left-1/2 -translate-x-1/2 max-w-[200px] w-full px-2 text-center">
+          <div id="headerTeamContainer" class="hidden items-center justify-center gap-1.5 px-2 py-1 rounded-xl hover:bg-black/5 transition cursor-pointer">
+            <i class="fa-solid fa-baseball text-sm shrink-0 text-slate-500" id="headerTeamIcon"></i>
+            <select id="headerTeamSelect" onchange="onHeaderTeamChange(this.value)" class="bg-transparent text-base font-bold text-slate-800 focus:outline-none cursor-pointer truncate text-center">
+            </select>
+          </div>
+          <div id="headerSingleTeamName" class="hidden text-base font-bold text-slate-800 truncate px-2 py-1"></div>
+        </div>
+
+        <button onclick="openGameModal()" class="w-9 h-9 flex items-center justify-center rounded-full text-slate-600 hover:bg-black/5 transition" aria-label="試合追加">
+          <i class="fa-solid fa-plus"></i>
+        </button>
+      </div>
+
+      <div class="px-4 py-2 shrink-0">
+        <div class="flex items-center gap-2 mb-2">
+          <div class="relative flex-1">
+            <i class="fa-solid fa-magnifying-glass absolute left-3 top-2 text-slate-400 text-xs"></i>
+            <input type="text" id="searchGame" placeholder="試合（対戦相手・会場）を検索" class="w-full bg-white text-xs pl-9 pr-3 py-2 rounded-xl shadow-sm border border-slate-200 focus:outline-none focus:ring-2 focus:ring-emerald-500 transition">
+          </div>
+          <div class="shrink-0">
+            <select id="yearFilterSelect" onchange="renderGameList(document.getElementById('searchGame').value.trim())" class="bg-white text-xs font-bold text-slate-700 px-3 py-2 rounded-xl shadow-sm border border-slate-200 focus:outline-none focus:ring-2 focus:ring-emerald-500 transition">
+              <option value="all">すべて</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- ホーム/ビジター・年度フィルター用の選択バー -->
+        <div class="flex items-center gap-2 mb-2">
+          <select id="sideFilterSelect" onchange="renderGameList(document.getElementById('searchGame').value.trim())" class="w-full bg-white text-xs font-bold text-slate-700 px-3 py-2 rounded-xl shadow-sm border border-slate-200 focus:outline-none focus:ring-2 focus:ring-emerald-500 transition">
+            <option value="all">ホーム / ビジター: すべて</option>
+            <option value="home">ホーム</option>
+            <option value="visitor">ビジター</option>
+          </select>
+        </div>
+
+        <!-- 観戦数・勝敗・勝率の球団カラー連動デザイン＆グラフエリア -->
+        <div id="statsCardContainer" class="p-3 text-white rounded-2xl shadow-md flex flex-col gap-2.5 transition-all duration-300">
+          <div class="flex items-center justify-between">
+            <div>
+              <div class="text-xs opacity-90 font-medium" id="labelTotalCount">通算観戦試合数</div>
+              <div class="text-xl font-black tracking-tight" id="gameTotalCountValue">0試合</div>
+            </div>
+            <div class="text-right">
+              <div class="text-xs opacity-90 font-medium" id="labelRecordRate">勝率 (勝-敗-分)</div>
+              <div class="text-lg font-bold tracking-tight" id="gameRecordValue">.000 <span class="text-xs font-normal opacity-90">(0勝0敗0分)</span></div>
+            </div>
+          </div>
+          <!-- 勝敗視覚化グラフ -->
+          <div class="space-y-1">
+            <div class="w-full h-2.5 bg-black/20 rounded-full overflow-hidden flex shadow-inner">
+              <div id="winBar" class="bg-white transition-all duration-500" style="width: 0%"></div>
+              <div id="drawBar" class="bg-amber-300 transition-all duration-500" style="width: 0%"></div>
+              <div id="loseBar" class="bg-black/30 transition-all duration-500" style="width: 0%"></div>
+            </div>
+            <div class="flex justify-between text-xs font-medium px-0.5" id="graphLegendContainer">
+              <span>勝利: <strong id="winCountText">0</strong></span>
+              <span>引分: <strong id="drawCountText">0</strong></span>
+              <span>敗戦: <strong id="loseCountText">0</strong></span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 試合一覧リストの下部にリスト1つ分の高さの2/3余白を確保 -->
+      <div class="flex-1 overflow-y-auto px-3 divide-y divide-slate-200/40 mt-1" id="gameList" style="-webkit-overflow-scrolling: touch; padding-bottom: calc(125px * 2 / 3);"></div>
+    </div>
+
+    <!-- 2. 詳細画面 -->
+    <div id="screen-details" class="screen">
+      <div id="detailScreenHeaderContainer" class="p-4 flex items-center justify-between relative shrink-0 z-10 h-16 transition-colors duration-300">
+        <button onclick="switchScreen('screen-games')" class="text-slate-700 hover:text-slate-900 text-lg px-2">
+          <i class="fa-solid fa-chevron-left"></i>
+        </button>
+        <div class="absolute left-1/2 -translate-x-1/2 text-center max-w-[180px]">
+          <h1 class="text-base font-bold truncate" id="detailScreenTitle">試合詳細</h1>
+        </div>
+        <!-- 写真追加ボタンをヘッダー右上に配置 -->
+        <label class="w-9 h-9 flex items-center justify-center rounded-full text-slate-600 transition cursor-pointer relative" title="写真を追加">
+          <i class="fa-regular fa-image text-base"></i>
+          <input type="file" id="photoInput" accept="image/*" multiple class="hidden" onchange="handlePhotoSelect(event)">
+        </label>
+      </div>
+
+      <div class="flex-1 flex flex-col min-h-0 overflow-hidden px-3 pt-2 pb-2">
+        <div id="detailFixedScoreArea" class="shrink-0 mb-3"></div>
+        <div class="flex-1 overflow-y-auto min-h-0 pr-0.5" id="detailMessages" style="-webkit-overflow-scrolling: touch;"></div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- 応援チーム一覧・編集モーダル（新規追加） -->
+  <div id="teamListModal" class="modal-overlay bg-black/30 hidden items-center justify-center p-4 z-50">
+    <div class="bg-white rounded-2xl w-full max-w-sm p-5 shadow-xl max-h-[90vh] flex flex-col">
+      <div class="flex items-center justify-between mb-4">
+        <h3 class="text-base font-bold text-slate-800">応援チームの編集</h3>
+        <button onclick="openTeamModal(null)" class="px-3 py-1.5 text-xs text-white bg-emerald-600 hover:bg-emerald-700 font-medium rounded-xl flex items-center gap-1.5 shadow-sm transition">
+          <i class="fa-solid fa-plus text-xs"></i> 追加
+        </button>
+      </div>
+      <div id="teamListContainer" class="flex-1 overflow-y-auto space-y-2 mb-4 divide-y divide-slate-100">
+        <!-- JSでチーム一覧を動的生成 -->
+      </div>
+      <div class="flex items-center justify-end pt-2 border-t border-slate-100">
+        <button onclick="closeTeamListModal()" class="px-4 py-1.5 text-xs bg-slate-100 hover:bg-slate-200 text-slate-700 font-medium rounded-xl transition">閉じる</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- チーム追加・編集用単体モーダル -->
+  <div id="teamModal" class="modal-overlay bg-black/30 hidden items-center justify-center p-4 z-[60]">
+    <div class="bg-white rounded-2xl w-full max-w-sm p-5 shadow-xl max-h-[90vh] overflow-y-auto">
+      <h3 class="text-base font-bold text-slate-800 mb-4" id="teamModalTitle">応援チームを設定</h3>
+      <input type="hidden" id="editTeamId">
+      <div class="space-y-3 text-sm">
+        <div>
+          <label class="block text-xs text-slate-500 mb-1">球団選択（12球団完全選択式）</label>
+          <select id="inputTeamPreset" onchange="onPresetTeamChange()" class="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 focus:outline-none focus:ring-2 focus:ring-emerald-500 text-sm font-semibold text-slate-800 shadow-sm"></select>
+          <input type="hidden" id="inputTeamName">
+        </div>
+      </div>
+      <div class="flex items-center justify-end mt-5">
+        <div class="flex items-center gap-2">
+          <button onclick="closeTeamModal()" class="px-3 py-1.5 text-xs text-slate-500 hover:text-slate-800">キャンセル</button>
+          <button id="saveTeamBtn" onclick="saveTeam()" class="px-4 py-1.5 text-xs text-white bg-emerald-600 hover:bg-emerald-700 font-bold rounded-lg">保存</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 試合追加・編集モーダル -->
+  <div id="gameModal" class="modal-overlay bg-black/30 hidden items-center justify-center p-4 z-50">
+    <div class="bg-white rounded-2xl w-full max-w-sm p-5 shadow-xl relative max-h-[90vh] overflow-y-auto">
+      <h3 class="text-base font-bold text-slate-800 mb-4" id="gameModalTitle">試合を追加</h3>
+      <input type="hidden" id="editGameId">
+      <div class="space-y-3 text-sm">
+        <div>
+          <label class="block text-xs text-slate-500 mb-1">1. 試合日</label>
+          <div class="relative">
+            <input type="text" id="inputGameDate" readonly placeholder="YYYY-MM-DD" onclick="openCustomCalendar()" class="w-full bg-slate-50 border border-slate-200 rounded-lg p-2 pr-9 focus:outline-none focus:ring-2 focus:ring-emerald-500 cursor-pointer text-sm">
+            <button type="button" onclick="openCustomCalendar()" class="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-emerald-600">
+              <i class="fa-regular fa-calendar-days text-base"></i>
+            </button>
+          </div>
+        </div>
+        <div>
+          <label class="block text-xs text-slate-500 mb-1">2. 対戦相手</label>
+          <select id="inputGameOpponentPreset" onchange="onPresetOpponentChange()" class="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 focus:outline-none focus:ring-2 focus:ring-emerald-500 text-sm font-semibold text-slate-800 shadow-sm"></select>
+          <input type="hidden" id="inputGameOpponent">
+        </div>
+        <div>
+          <label class="block text-xs text-slate-500 mb-1">3. ホーム / ビジターを選択</label>
+          <div class="grid grid-cols-2 gap-2">
+            <button type="button" onclick="setGameSide('home')" id="sideBtnHome" class="py-2 text-sm font-bold rounded-xl border border-slate-200 bg-white text-slate-700 transition flex items-center justify-center gap-1.5">ホーム</button>
+            <button type="button" onclick="setGameSide('visitor')" id="sideBtnVisitor" class="py-2 text-sm font-bold rounded-xl border border-slate-200 bg-white text-slate-700 transition flex items-center justify-center gap-1.5">ビジター</button>
+          </div>
+          <input type="hidden" id="inputGameSide" value="home">
+        </div>
+        <div>
+          <div class="flex items-center justify-between mb-1">
+            <label class="block text-xs text-slate-500">4. 球場</label>
+            <span class="text-[11px] text-emerald-600 font-medium">※自動入力＋自由修正可</span>
+          </div>
+          <div class="space-y-2">
+            <select id="inputStadiumPreset" onchange="onPresetStadiumChange()" class="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 focus:outline-none focus:ring-2 focus:ring-emerald-500 text-sm font-semibold text-slate-800 shadow-sm">
+              <option value="">-- 本拠地リストから選択 --</option>
+            </select>
+            <input type="text" id="inputGameStadium" placeholder="例: 阪神甲子園球場 など自由に入力" class="w-full bg-slate-50 border border-slate-200 rounded-lg p-2 focus:outline-none focus:ring-2 focus:ring-emerald-500 text-sm">
+          </div>
+        </div>
+      </div>
+
+      <div class="flex items-center justify-between mt-5">
+        <button type="button" id="deleteGameBtnInModal" onclick="deleteGameFromModal()" class="px-3 py-1.5 text-xs text-red-600 hover:bg-red-50 rounded-lg hidden">削除</button>
+        <div class="flex items-center gap-2 ml-auto">
+          <button onclick="closeGameModal()" class="px-3 py-1.5 text-xs text-slate-500 hover:text-slate-800">キャンセル</button>
+          <button id="saveGameBtn" onclick="saveGame()" data-button-name="add-game" class="track-btn px-4 py-1.5 text-xs text-white font-medium rounded-lg">保存</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- スコア入力・編集用モーダル -->
+  <div id="scoreModal" class="modal-overlay bg-black/30 hidden items-center justify-center p-4 z-50">
+    <div class="bg-white rounded-2xl w-full max-w-sm p-5 shadow-xl relative max-h-[90vh] overflow-y-auto">
+      <h3 class="text-base font-bold text-slate-800 mb-3">スコアを入力・更新</h3>
+
+      <div class="space-y-3 text-sm">
+        <div class="border-t border-slate-200 pt-3">
+          <div class="flex items-center justify-between mb-2">
+            <label class="block text-xs font-bold text-slate-700">イニング別スコア <br>(Xや1xを入力可能)</label>
+            <div class="flex items-center gap-1 text-xs">
+              <span class="text-slate-500">イニング:</span>
+              <select id="inningCountSelect" onchange="rebuildBaseballInningInputs()" class="bg-slate-100 border border-slate-200 rounded px-2.5 py-1.5 text-sm font-bold text-slate-700">
+                <option value="9">9回</option>
+                <option value="10">10回</option>
+                <option value="11">11回</option>
+                <option value="12">12回</option>
+              </select>
+            </div>
+          </div>
+          <div id="gameModalScoreContainer" class="space-y-3 text-xs"></div>
+        </div>
+
+        <div class="border-t border-slate-200 pt-3">
+          <label class="block text-xs font-bold text-slate-700 mb-1">試合メモ（任意）</label>
+          <textarea id="inputGameMemo" rows="2" placeholder="試合に関するメモや感想（任意）" class="w-full bg-slate-50 border border-slate-200 rounded-lg p-2 focus:outline-none focus:ring-2 focus:ring-emerald-500 text-sm resize-none"></textarea>
+        </div>
+      </div>
+
+      <div class="flex items-center justify-end mt-5">
+        <div class="flex items-center gap-2">
+          <button onclick="closeScoreModal()" class="px-3 py-1.5 text-xs text-slate-500 hover:text-slate-800">キャンセル</button>
+          <button id="saveScoreBtn" onclick="saveScoreData()" class="px-4 py-1.5 text-xs text-white font-medium rounded-lg">保存</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- カスタムカレンダーモーダル -->
+  <div id="customCalendarModal" class="modal-overlay bg-black/30 hidden items-center justify-center p-4 z-[70]">
+    <div class="bg-white rounded-2xl w-full max-w-xs p-4 shadow-2xl">
+      <div class="flex items-center justify-between mb-3 px-1">
+        <button type="button" onclick="changeMonth(-1)" class="w-8 h-8 rounded-full hover:bg-slate-100 flex items-center justify-center text-slate-600"><i class="fa-solid fa-chevron-left text-xs"></i></button>
+        <h4 id="calCurrentMonthTitle" class="text-sm font-bold text-slate-800">2026年 4月</h4>
+        <button type="button" onclick="changeMonth(1)" class="w-8 h-8 rounded-full hover:bg-slate-100 flex items-center justify-center text-slate-600"><i class="fa-solid fa-chevron-right text-xs"></i></button>
+      </div>
+      <div class="grid grid-cols-7 gap-1 text-center text-xs font-bold text-slate-400 mb-2">
+        <span class="text-red-500">日</span><span>月</span><span>火</span><span>水</span><span>木</span><span>金</span><span class="text-blue-500">土</span>
+      </div>
+      <div id="calDaysGrid" class="grid grid-cols-7 gap-1 text-center text-sm h-[240px] content-start"></div>
+      <div class="mt-4 flex justify-end">
+        <button type="button" onclick="closeCustomCalendar()" class="px-4 py-1.5 text-xs bg-slate-100 text-slate-600 font-medium rounded-xl hover:bg-slate-200">閉じる</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 写真拡大プレビューモーダル -->
+  <div id="photoPreviewModal" class="modal-overlay bg-black/30 hidden items-center justify-center p-4 z-[70]" onclick="closePhotoPreview(); closePhotoMenu();">
+    <div class="relative max-w-full max-h-full flex flex-col items-center justify-center" onclick="event.stopPropagation()">
+      
+      <!-- 写真表示エリア -->
+      <div class="relative flex items-center justify-center">
+        <!-- 前の写真へ移動ボタン -->
+        <button onclick="navigatePhoto(-1); closePhotoMenu();" class="absolute left-2 text-white text-lg w-8 h-8 flex items-center justify-center rounded-full bg-black/30 hover:bg-black/30 transition z-10 shadow-lg" aria-label="前の写真">
+          <i class="fa-solid fa-chevron-left text-xs"></i>
+        </button>
+
+        <!-- 拡大画像 -->
+        <img id="previewModalImg" src="" alt="拡大写真" class="max-w-full max-h-[75vh] rounded-xl object-contain shadow-2xl">
+
+        <!-- 次の写真へ移動ボタン -->
+        <button onclick="navigatePhoto(1); closePhotoMenu();" class="absolute right-2 text-white text-lg w-8 h-8 flex items-center justify-center rounded-full bg-black/30 hover:bg-black/30 transition z-10 shadow-lg" aria-label="次の写真">
+          <i class="fa-solid fa-chevron-right text-xs"></i>
+        </button>
+
+        <!-- 【中央最下部】×（閉じる）ボタン -->
+        <button onclick="closePhotoPreview(); closePhotoMenu();" class="absolute bottom-3 left-1/2 -translate-x-1/2 text-white w-8 h-8 flex items-center justify-center rounded-full bg-black/30 hover:bg-black/30 transition z-20 shadow-md" aria-label="閉じる">
+          <i class="fa-solid fa-xmark text-sm"></i>
+        </button>
+
+        <!-- 【右上】三点マークボタン -->
+        <button onclick="event.stopPropagation(); togglePhotoMenu(event);" class="absolute top-2 right-2 text-white w-8 h-8 flex items-center justify-center rounded-full bg-black/30 hover:bg-black/30 transition z-20 shadow-md" aria-label="メニュー">
+          <i class="fa-solid fa-ellipsis-vertical text-xs"></i>
+        </button>
+
+        <!-- 三点マークの削除メニュー -->
+        <div id="photoActionMenu" class="absolute top-11 right-2 hidden bg-white rounded-xl shadow-xl py-1 z-30 text-xs w-32 overflow-hidden border border-slate-100">
+          <button onclick="event.stopPropagation(); deleteCurrentPhotoFromPreview(); closePhotoMenu();" class="w-full text-left px-3 py-2.5 hover:bg-red-50 flex items-center gap-2 text-red-600">
+            <i class="fa-solid fa-trash text-red-400 w-4"></i> 削除する
+          </button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- 試合個別メニュー -->
+  <div id="gameContextMenu" class="fixed hidden bg-white rounded-xl shadow-xl py-1 z-50 text-xs w-36 overflow-hidden">
+    <button onclick="gameContextAction('edit')" class="w-full text-left px-3 py-2 hover:bg-slate-100 flex items-center gap-2 text-slate-700">
+      <i class="fa-solid fa-pen text-slate-400 w-4"></i> 編集
+    </button>
+    <button onclick="gameContextAction('delete')" class="w-full text-left px-3 py-2 hover:bg-red-50 flex items-center gap-2 text-red-600">
+      <i class="fa-solid fa-trash text-red-400 w-4"></i> 削除
+    </button>
+  </div>
+
+  <div id="toast" class="fixed bottom-10 left-1/2 -translate-x-1/2 bg-slate-800/90 text-white text-xs px-4 py-2.5 rounded-full shadow-lg transition-opacity duration-300 opacity-0 pointer-events-none z-50 flex items-center gap-2">
+    <i class="fa-solid fa-circle-notch fa-spin text-emerald-400"></i>
+    <span id="toastMsg">処理中...</span>
+  </div>
+
+  <script>
+    let db = null;
+    let teamsData = [];
+    let currentTeamId = null;
+    let currentGameId = null;
+    let selectedGameIdForContext = null;
+    let currentPreviewPhotoId = null; // 現在プレビュー中の写真ID保持用
+
+    let calYear = new Date().getFullYear();
+    let calMonth = new Date().getMonth();
+
+    const BASEBALL_TEAMS = [
+      { name: "読売ジャイアンツ", short: "巨人", league: "セ・リーグ", color: "#ff6600", homeStadium: "東京ドーム", altStadiums: ["東京ドーム", "東京"] },
+      { name: "東京ヤクルトスワローズ", short: "ヤクルト", league: "セ・リーグ", color: "#96C800", homeStadium: "明治神宮野球場", altStadiums: ["明治神宮野球場", "神宮球場", "神宮"] },
+      { name: "横浜DeNAベイスターズ", short: "DeNA", league: "セ・リーグ", color: "#00afec", homeStadium: "横浜スタジアム", altStadiums: ["横浜スタジアム", "横浜"] },
+      { name: "中日ドラゴンズ", short: "中日", league: "セ・リーグ", color: "#002060", homeStadium: "バンテリンドーム ナゴヤ", altStadiums: ["バンテリンドーム ナゴヤ", "バンテリン", "ナゴヤドーム"] },
+      { name: "阪神タイガース", short: "阪神", league: "セ・リーグ", color: "#ffe500", textColor: "#1e293b", homeStadium: "阪神甲子園球場", altStadiums: ["阪神甲子園球場", "甲子園", "京セラドーム大阪"] },
+      { name: "広島東洋カープ", short: "広島", league: "セ・リーグ", color: "#cc0000", homeStadium: "MAZDA Zoom-Zoom スタジアム広島", altStadiums: ["MAZDA Zoom-Zoom スタジアム広島", "マツダスタジアム", "マツダ"] },
+      { name: "北海道日本ハムファイターズ", short: "日本ハム", league: "パ・リーグ", color: "#006699", homeStadium: "エスコンフィールドＨＯＫKＡＩＤＯ", altStadiums: ["エスコンフィールドＨＯＫKＡＩＤＯ", "エスコンフィールド", "エスコン"] },
+      { name: "東北楽天ゴールデンイーグルス", short: "楽天", league: "パ・リーグ", color: "#8b0000", homeStadium: "楽天モバイル 最強パーク宮城", altStadiums: ["楽天モバイル 最強パーク宮城", "楽天モバイル", "宮城"] },
+      { name: "埼玉西武ライオンズ", short: "西武", league: "パ・リーグ", color: "#1b213b", homeStadium: "ベルーナドーム", altStadiums: ["ベルーナドーム", "西武ドーム"] },
+      { name: "千葉ロッテマリーンズ", short: "ロッテ", league: "パ・リーグ", color: "#111111", homeStadium: "ZOZOマリンスタジアム", altStadiums: ["ZOZOマリンスタジアム", "ZOZOマリン"] },
+      { name: "オリックス・バファローズ", short: "オリックス", league: "パ・リーグ", color: "#b89353", homeStadium: "京セラドーム大阪", altStadiums: ["京セラドーム大阪", "ほっともっとフィールド神戸"] },
+      { name: "福岡ソフトバンクホークス", short: "ソフトバンク", league: "パ・リーグ", color: "#ffcc00", textColor: "#1e293b", homeStadium: "みずほPayPayドーム福岡", altStadiums: ["みずほPayPayドーム福岡", "PayPayドーム", "福岡ドーム"] }
+    ];
+
+    function getTeamShortName(fullName) {
+      if (!fullName) return '';
+      const found = BASEBALL_TEAMS.find(t => t.name === fullName);
+      return found ? found.short : fullName;
+    }
+
+    function getTeamColor(fullName) {
+      if (!fullName) return '#059669';
+      const found = BASEBALL_TEAMS.find(t => t.name === fullName);
+      return found ? found.color : '#059669';
+    }
+
+    function getTeamTextColor(fullName) {
+      if (!fullName) return '#ffffff';
+      const found = BASEBALL_TEAMS.find(t => t.name === fullName);
+      if (found && found.textColor) return found.textColor;
+      return '#ffffff';
+    }
+
+    function getGameHomeTeamColor(game, currentTeamName) {
+      const side = game.side || 'home';
+      const homeTeamName = (side === 'home') ? currentTeamName : (game.opponent || '');
+      return getTeamColor(homeTeamName);
+    }
+
+    function normalizeScoreData(teams) {
+      if (!Array.isArray(teams)) return;
+      teams.forEach(team => {
+        if (Array.isArray(team.games)) {
+          team.games.forEach(game => {
+            if (game.scoreData) {
+              if (Array.isArray(game.scoreData.teamRuns)) {
+                game.scoreData.teamRuns = game.scoreData.teamRuns.map(v => (v !== undefined && v !== null && v !== '') ? v : 0);
+              }
+              if (Array.isArray(game.scoreData.oppRuns)) {
+                game.scoreData.oppRuns = game.scoreData.oppRuns.map(v => (v !== undefined && v !== null && v !== '') ? v : 0);
+              }
+            }
+          });
+        }
+      });
+    }
+
+    function initDB() {
+      return new Promise((resolve, reject) => {
+        const request = indexedDB.open('SportsLogDB_BaseballOnly', 2);
+        request.onerror = () => reject(request.error);
+        request.onsuccess = () => {
+          db = request.result;
+          resolve(db);
+        };
+        request.onupgradeneeded = (e) => {
+          const database = e.target.result;
+          if (!database.objectStoreNames.contains('appData')) {
+            database.createObjectStore('appData');
+          }
+        };
+      });
+    }
+
+    function loadDataFromDB() {
+      return new Promise((resolve, reject) => {
+        const transaction = db.transaction(['appData'], 'readonly');
+        const store = transaction.objectStore('appData');
+        const request = store.get('teams');
+        request.onsuccess = () => {
+          teamsData = request.result || [];
+          normalizeScoreData(teamsData);
+          resolve(teamsData);
+        };
+        request.onerror = () => reject(request.error);
+      });
+    }
+
+    function saveDataToDB() {
+      return new Promise((resolve, reject) => {
+        const transaction = db.transaction(['appData'], 'readwrite');
+        const store = transaction.objectStore('appData');
+        const request = store.put(teamsData, 'teams');
+        request.onsuccess = () => resolve();
+        request.onerror = () => reject(request.error);
+      });
+    }
+
+    function showToast(msg) {
+      const toast = document.getElementById('toast');
+      document.getElementById('toastMsg').textContent = msg;
+      toast.classList.remove('opacity-0', 'pointer-events-none');
+    }
+
+    function hideToast() {
+      const toast = document.getElementById('toast');
+      toast.classList.add('opacity-0', 'pointer-events-none');
+    }
+
+    function escapeHtml(str) {
+      if (!str && str !== 0) return '';
+      return String(str).replace(/[&<>"']/g, function(m) {
+        return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;' }[m];
+      });
+    }
+
+    function switchScreen(screenId) {
+      document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+      document.getElementById(screenId).classList.add('active');
+
+      if (screenId === 'screen-games') {
+        updateHeaderTeamSelect();
+        updateYearFilterOptions();
+        renderGameList();
+      }
+      if (screenId === 'screen-details') renderDetailMessages();
+    }
+
+    function applyCurrentTeamTheme() {
+      const team = teamsData.find(t => t.id === currentTeamId);
+      const teamColor = team ? (team.color || getTeamColor(team.name)) : '#059669';
+      const textColor = team ? (team.textColor || getTeamTextColor(team.name)) : '#ffffff';
+      
+      const statsCard = document.getElementById('statsCardContainer');
+      if (statsCard) {
+        statsCard.style.backgroundColor = teamColor;
+        statsCard.style.color = textColor;
+      }
+
+      const isDarkText = (textColor !== '#ffffff');
+      ['labelTotalCount', 'labelRecordRate', 'gameRecordValue', 'graphLegendContainer'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) {
+          el.style.color = isDarkText ? '#1e293b' : '#ffffff';
+        }
+      });
+
+      ['saveTeamBtn', 'saveGameBtn', 'saveScoreBtn'].forEach(btnId => {
+        const btn = document.getElementById(btnId);
+        if (btn) {
+          btn.style.backgroundColor = teamColor;
+          btn.style.color = isDarkText ? '#1e293b' : '#ffffff';
+        }
+      });
+
+      const headerIcon = document.getElementById('headerTeamIcon');
+      if (headerIcon) headerIcon.style.color = teamColor;
+    }
+
+    let touchStartXCoord = 0;
+    let touchStartYCoord = 0;
+
+    document.addEventListener('touchstart', (e) => {
+      if (e.touches.length === 1) {
+        touchStartXCoord = e.touches[0].clientX;
+        touchStartYCoord = e.touches[0].clientY;
+      }
+    }, { passive: true });
+
+    document.addEventListener('touchend', (e) => {
+      if (e.changedTouches.length === 1) {
+        const touchEndXCoord = e.changedTouches[0].clientX;
+        const touchEndYCoord = e.changedTouches[0].clientY;
+        const diffX = touchEndXCoord - touchStartXCoord;
+        const diffY = touchEndYCoord - touchStartYCoord;
+
+        if (Math.abs(diffX) > 50 && Math.abs(diffX) > Math.abs(diffY)) {
+          const activeScreen = document.querySelector('.screen.active');
+          if (!activeScreen) return;
+
+          if (document.getElementById('customCalendarModal').classList.contains('flex') ||
+              document.getElementById('teamModal').classList.contains('flex') ||
+              document.getElementById('teamListModal').classList.contains('flex') ||
+              document.getElementById('gameModal').classList.contains('flex') ||
+              document.getElementById('scoreModal').classList.contains('flex') ||
+              document.getElementById('photoPreviewModal').classList.contains('flex')) {
+            return;
+          }
+
+          if (activeScreen.id === 'screen-details' && diffX > 0) {
+            switchScreen('screen-games');
+          }
+        }
+      }
+    }, { passive: true });
+
+    function toggleGlobalMenu(e) {
+      e.stopPropagation();
+      const menu = document.getElementById('globalContextMenu');
+      closeAllContextMenus();
+      menu.classList.toggle('hidden');
+    }
+
+    function closeAllContextMenus() {
+      const menu = document.getElementById('globalContextMenu');
+      if (menu) menu.classList.add('hidden');
+      const gMenu = document.getElementById('gameContextMenu');
+      if (gMenu) gMenu.classList.add('hidden');
+    }
+    document.addEventListener('click', () => closeAllContextMenus());
+
+    function updateHeaderTeamSelect() {
+      const selectEl = document.getElementById('headerTeamSelect');
+      const containerEl = document.getElementById('headerTeamContainer');
+      const singleTeamEl = document.getElementById('headerSingleTeamName');
+      if (!selectEl) return;
+      
+      selectEl.innerHTML = '';
+      teamsData.forEach(t => {
+        const opt = document.createElement('option');
+        opt.value = t.id;
+        opt.textContent = getTeamShortName(t.name);
+        if (t.id === currentTeamId) opt.selected = true;
+        selectEl.appendChild(opt);
+      });
+      if (teamsData.length === 0) {
+        const opt = document.createElement('option');
+        opt.value = "";
+        opt.textContent = "チームを追加";
+        selectEl.appendChild(opt);
+      }
+
+      // 応援チームが複数ある場合のみセレクトボックスを表示し、1つ以下の場合はチーム名テキストを表示する
+      if (teamsData.length > 1) {
+        if (containerEl) {
+          containerEl.classList.remove('hidden');
+          containerEl.classList.add('flex');
+        }
+        if (singleTeamEl) {
+          singleTeamEl.classList.add('hidden');
+        }
+      } else {
+        if (containerEl) {
+          containerEl.classList.remove('flex');
+          containerEl.classList.add('hidden');
+        }
+        if (singleTeamEl) {
+          const currentTeam = teamsData.find(t => t.id === currentTeamId) || teamsData[0];
+          singleTeamEl.textContent = currentTeam ? getTeamShortName(currentTeam.name) : '';
+          singleTeamEl.classList.remove('hidden');
+        }
+      }
+    }
+
+    function onHeaderTeamChange(teamId) {
+      if (!teamId) return;
+      currentTeamId = teamId;
+      applyCurrentTeamTheme();
+      updateYearFilterOptions();
+      renderGameList();
+    }
+
+    function updateYearFilterOptions() {
+      const team = teamsData.find(t => t.id === currentTeamId);
+      const selectEl = document.getElementById('yearFilterSelect');
+      if (!team) return;
+
+      const currentVal = selectEl.value;
+      const yearsSet = new Set();
+      team.games.forEach(g => {
+        if (g.date && g.date.length >= 4) {
+          yearsSet.add(g.date.slice(0, 4));
+        }
+      });
+
+      const currentYearStr = String(new Date().getFullYear());
+      yearsSet.add(currentYearStr);
+
+      const sortedYears = Array.from(yearsSet).sort((a, b) => b.localeCompare(a));
+
+      selectEl.innerHTML = '<option value="all">すべて</option>';
+      sortedYears.forEach(y => {
+        const opt = document.createElement('option');
+        opt.value = y;
+        opt.textContent = y + '年';
+        selectEl.appendChild(opt);
+      });
+
+      if (currentVal && currentVal !== 'all' && Array.from(selectEl.options).some(o => o.value === currentVal)) {
+        selectEl.value = currentVal;
+      } else {
+        selectEl.value = currentYearStr;
+      }
+    }
+
+    function parseRunVal(val) {
+      if (val === null || val === undefined || val === '') return { numeric: 0, isX: false, isWalkoff: false, original: '0' };
+      let str = String(val).trim().toLowerCase();
+      if (str === 'x') return { numeric: 0, isX: true, isWalkoff: false, original: 'x' };
+      if (str.endsWith('x')) {
+        let baseNum = parseInt(str.slice(0, -1), 10) || 0;
+        return { numeric: baseNum, isX: false, isWalkoff: true, original: str };
+      }
+      let num = parseInt(str, 10);
+      if (isNaN(num)) num = 0;
+      return { numeric: num, isX: false, isWalkoff: false, original: String(num) };
+    }
+
+    function calculateTotalScore(runsArr) {
+      if (!Array.isArray(runsArr)) return 0;
+      return runsArr.reduce((sum, val) => sum + parseRunVal(val).numeric, 0);
+    }
+
+    function formatTotalScoreDisplay(runsArr, isWalkoff) {
+      if (!Array.isArray(runsArr)) return '0';
+      let total = calculateTotalScore(runsArr);
+      let hasWalkoffInput = runsArr.some(v => parseRunVal(v).isWalkoff);
+      if (isWalkoff || hasWalkoffInput) {
+        return total + 'x';
+      }
+      return String(total);
+    }
+
+    function renderGameList(filter = '') {
+      const listEl = document.getElementById('gameList');
+      listEl.innerHTML = '';
+      const team = teamsData.find(t => t.id === currentTeamId);
+      if (!team) return;
+
+      applyCurrentTeamTheme();
+
+      const teamColor = team.color || getTeamColor(team.name);
+      const yearFilterVal = document.getElementById('yearFilterSelect').value;
+      const sideFilterVal = document.getElementById('sideFilterSelect') ? document.getElementById('sideFilterSelect').value : 'all';
+
+      let targetGames = team.games;
+      if (yearFilterVal !== 'all') {
+        targetGames = targetGames.filter(g => g.date && g.date.startsWith(yearFilterVal));
+      }
+      if (sideFilterVal !== 'all') {
+        targetGames = targetGames.filter(g => (g.side || 'home') === sideFilterVal);
+      }
+
+      const totalGames = targetGames.length;
+      document.getElementById('gameTotalCountValue').textContent = totalGames + '試合';
+
+      let wins = 0;
+      let losses = 0;
+      let draws = 0;
+
+      targetGames.forEach(g => {
+        if (g.scoreData && g.scoreData.status) {
+          if (g.scoreData.status === 'win') wins++;
+          else if (g.scoreData.status === 'lose') losses++;
+          else if (g.scoreData.status === 'draw') draws++;
+        }
+      });
+
+      let winningPercentage = '.000';
+      const totalDecided = wins + losses;
+      if (totalDecided > 0) {
+        const rate = wins / totalDecided;
+        winningPercentage = rate.toFixed(3).replace(/^0/, '');
+      }
+
+      const isDarkCardText = (teamColor.toLowerCase() === '#ffe500');
+      const rateSubColor = isDarkCardText ? 'text-slate-700 font-semibold' : 'text-white/90';
+
+      document.getElementById('gameRecordValue').innerHTML = `${winningPercentage} <span class="text-xs font-normal ${rateSubColor}">(${wins}勝 ${losses}敗 ${draws}分)</span>`;
+      
+      const totalCountForBar = (wins + losses + draws) || 1;
+      document.getElementById('winBar').style.width = `${(wins / totalCountForBar) * 100}%`;
+      document.getElementById('drawBar').style.width = `${(draws / totalCountForBar) * 100}%`;
+      document.getElementById('loseBar').style.width = `${(losses / totalCountForBar) * 100}%`;
+      
+      document.getElementById('winCountText').textContent = wins;
+      document.getElementById('drawCountText').textContent = draws;
+      document.getElementById('loseCountText').textContent = losses;
+
+      const filtered = targetGames.filter(g => (g.date || '').includes(filter) || (g.opponent && g.opponent.includes(filter)) || (g.stadium && g.stadium.includes(filter)));
+
+      if (filtered.length === 0) {
+        listEl.innerHTML = `<div class="p-8 text-center text-slate-400 text-sm">試合がまだ登録されていません</div>`;
+        return;
+      }
+
+      filtered.forEach((game) => {
+        const item = document.createElement('div');
+        item.className = 'py-3.5 px-3 bg-white mb-2 pl-4 rounded-2xl shadow-sm border border-slate-200/60 flex items-center justify-between transition group';
+        item.dataset.id = game.id;
+        
+        let scoreDisplayHtml = '<span class="text-xs text-slate-400 font-normal">スコア未入力</span>';
+        let resultBadgeClass = 'bg-slate-100 text-slate-600';
+        let resultLabel = '未入力';
+
+        const oppShort = getTeamShortName(game.opponent || '対戦相手');
+
+        if (game.scoreData && game.scoreData.status) {
+          const s = game.scoreData;
+          let tTotalStr = formatTotalScoreDisplay(s.teamRuns, s.isWalkoffTeam);
+          let oTotalStr = formatTotalScoreDisplay(s.oppRuns, s.isWalkoffOpp);
+
+          scoreDisplayHtml = `
+            <div class="flex items-center gap-1.5">
+              <span class="text-base font-bold text-slate-900">${tTotalStr}</span>
+              <span class="text-sm text-slate-400 font-bold">-</span>
+              <span class="text-base font-bold text-slate-900">${oTotalStr}</span>
+              <span class="text-sm text-slate-600 font-medium ml-1">vs ${escapeHtml(oppShort)}</span>
+            </div>
+          `;
+          
+          if (s.status === 'win') {
+            resultLabel = '勝';
+            resultBadgeClass = 'bg-emerald-500 text-white';
+          } else if (s.status === 'lose') {
+            resultLabel = '負';
+            resultBadgeClass = 'bg-rose-500 text-white';
+          } else if (s.status === 'draw') {
+            resultLabel = '分';
+            resultBadgeClass = 'bg-amber-500 text-white';
+          } else if (s.status === 'canceled') {
+            resultLabel = '中止';
+            resultBadgeClass = 'bg-slate-400 text-white';
+          }
+        } else {
+          scoreDisplayHtml = `
+            <div class="flex items-center gap-1.5">
+              <span class="text-xs text-slate-400 font-normal">スコア未入力</span>
+              <span class="text-xs text-slate-600 font-medium ml-1">vs ${escapeHtml(oppShort)}</span>
+            </div>
+          `;
+        }
+
+        const homeTeamColor = getGameHomeTeamColor(game, team.name);
+        const stadiumDisplay = game.stadium ? `<div class="text-xs text-slate-500 truncate mt-1"><i class="fa-solid fa-location-dot mr-1" style="color: ${homeTeamColor};"></i>${escapeHtml(game.stadium)}</div>` : '';
+
+        item.innerHTML = `
+        <div class="flex items-center gap-3 flex-1 min-w-0">
+            <div class="flex items-center gap-3.5 flex-1 min-w-0 cursor-pointer" onclick="selectGame('${game.id}')">
+              <div class="flex-1 min-w-0">
+                <div class="flex items-center justify-between mb-0.5">
+                  <h3 class="text-xs font-bold text-slate-600 truncate">${escapeHtml(game.date || '日付未設定')}</h3>
+                  <span class="px-2 py-0.5 rounded text-xs font-bold ${resultBadgeClass}">${resultLabel}</span>
+                </div>
+                <div class="flex items-center h-6">${scoreDisplayHtml}</div>
+                ${stadiumDisplay}
+              </div>
+            </div>
+          </div>
+          <div class="flex items-center gap-1.5 ml-2 shrink-0">
+            <button onclick="openGameContextMenu(event, '${game.id}'); event.stopPropagation();" class="w-8 h-8 rounded-full bg-slate-50 text-slate-500 hover:text-slate-700 transition flex items-center justify-center">
+              <i class="fa-solid fa-ellipsis-vertical text-xs"></i>
+            </button>
+          </div>
+        `;
+        listEl.appendChild(item);
+      });
+    }
+
+    function selectGame(gameId) {
+      currentGameId = gameId;
+      switchScreen('screen-details');
+    }
+
+    function openScoreEditModalFromDetails() {
+      if (currentGameId) {
+        openScoreModal(currentGameId);
+      }
+    }
+
+    function renderDetailMessages() {
+      const team = teamsData.find(t => t.id === currentTeamId);
+      if (!team) return;
+      const game = team.games.find(g => g.id === currentGameId);
+      if (!game) return;
+
+      const homeTeamColor = getGameHomeTeamColor(game, team.name);
+
+      document.getElementById('detailScreenTitle').textContent = game.date || '日付未設定';
+
+      const fixedScoreArea = document.getElementById('detailFixedScoreArea');
+      fixedScoreArea.innerHTML = '';
+
+      let scoreDetailCard = '';
+      if (game.scoreData) {
+        const s = game.scoreData;
+        let detailedBreakdown = '';
+        let tTotalStr = formatTotalScoreDisplay(s.teamRuns, s.isWalkoffTeam);
+        let oTotalStr = formatTotalScoreDisplay(s.oppRuns, s.isWalkoffOpp);
+
+        const side = game.side || 'home';
+        let leftTeamName = '';
+        let rightTeamName = '';
+        let leftTotalStr = '';
+        let rightTotalStr = '';
+        let leftCells = '';
+        let rightCells = '';
+
+        const homeTeamNameShort = getTeamShortName(team.name);
+        const oppTeamNameShort = getTeamShortName(game.opponent || '対戦相手');
+
+        if (side === 'home') {
+          leftTeamName = oppTeamNameShort;
+          rightTeamName = homeTeamNameShort;
+          leftTotalStr = oTotalStr;
+          rightTotalStr = tTotalStr;
+        } else {
+          leftTeamName = homeTeamNameShort;
+          rightTeamName = oppTeamNameShort;
+          leftTotalStr = tTotalStr;
+          rightTotalStr = oTotalStr;
+        }
+
+        if (Array.isArray(s.teamRuns) && Array.isArray(s.oppRuns)) {
+          const inningsCount = s.teamRuns.length;
+          
+          let headerCells = '';
+          for (let i = 1; i <= inningsCount; i++) {
+            headerCells += `<div class="font-bold text-slate-400">${i}</div>`;
+            if (side === 'home') {
+              leftCells += `<div>${escapeHtml(s.oppRuns[i-1] ?? 0)}</div>`;
+              rightCells += `<div>${escapeHtml(s.teamRuns[i-1] ?? 0)}</div>`;
+            } else {
+              leftCells += `<div>${escapeHtml(s.teamRuns[i-1] ?? 0)}</div>`;
+              rightCells += `<div>${escapeHtml(s.oppRuns[i-1] ?? 0)}</div>`;
+            }
+          }
+
+          detailedBreakdown = `
+            <div class="mt-2 pt-2 border-t border-slate-200/60 text-xs text-slate-700">
+              <div class="grid grid-cols-[72px_repeat(${inningsCount},minmax(16px,1fr))] gap-0.5 text-center items-center">
+                <div class="font-bold text-slate-400 text-left"></div>
+                ${headerCells}
+              </div>
+              <div class="grid grid-cols-[72px_repeat(${inningsCount},minmax(16px,1fr))] gap-0.5 text-center mt-0.5 items-center">
+                <div class="truncate font-medium text-left pr-1" title="${escapeHtml(leftTeamName)}">${escapeHtml(leftTeamName)}</div>
+                ${leftCells}
+              </div>
+              <div class="grid grid-cols-[72px_repeat(${inningsCount},minmax(16px,1fr))] gap-0.5 text-center mt-0.5 items-center">
+                <div class="truncate font-medium text-left pr-1" title="${escapeHtml(rightTeamName)}">${escapeHtml(rightTeamName)}</div>
+                ${rightCells}
+              </div>
+            </div>
+          `;
+        }
+
+        const stadiumHeaderDisplay = game.stadium ? `<div class="text-xs text-slate-500 font-medium mb-1 flex items-center justify-center gap-1"><i class="fa-solid fa-location-dot" style="color: ${homeTeamColor};"></i>${escapeHtml(game.stadium)}</div>` : '';
+
+        let statusBadgeClass = 'bg-slate-500 text-white';
+        let statusText = '中止';
+        if (s.status === 'win') {
+          statusBadgeClass = 'bg-emerald-500 text-white';
+          statusText = '勝利';
+        } else if (s.status === 'lose') {
+          statusBadgeClass = 'bg-rose-500 text-white';
+          statusText = '敗戦';
+        } else if (s.status === 'draw') {
+          statusBadgeClass = 'bg-amber-500 text-white';
+          statusText = '引分';
+        }
+
+        scoreDetailCard = `
+          <div class="bg-white border border-slate-200/80 p-3 rounded-2xl shadow-sm text-center">
+            <div class="flex items-center justify-between mb-1">
+              <div class="inline-block px-2.5 py-0.5 rounded-full text-xs font-bold ${statusBadgeClass}">
+                ${statusText}
+              </div>
+              <button onclick="openScoreEditModalFromDetails()" class="flex items-center gap-1 px-2.5 py-0.5 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold rounded-full transition shadow-sm border border-slate-200">
+                <i class="fa-solid fa-pen text-[10px]"></i>
+                <span>スコア編集</span>
+              </button>
+            </div>
+            
+            ${stadiumHeaderDisplay}
+
+            <div class="flex items-center justify-center gap-2 text-xs font-bold text-slate-700 mb-0.5">
+              <span class="truncate max-w-[120px] text-right">${escapeHtml(leftTeamName)}</span>
+              <span class="text-slate-400 font-normal shrink-0">vs</span>
+              <span class="truncate max-w-[120px] text-left">${escapeHtml(rightTeamName)}</span>
+            </div>
+
+            <div class="text-2xl font-extrabold text-slate-900 tracking-tight flex items-center justify-center gap-2">
+              <span>${leftTotalStr}</span>
+              <span class="text-slate-400 font-light">-</span>
+              <span>${rightTotalStr}</span>
+            </div>
+            ${detailedBreakdown}
+            ${game.memo ? `<div class="mt-2 pt-1.5 border-t border-slate-100 text-xs text-slate-600 text-left bg-slate-50 px-2 py-1 rounded-lg"><strong>メモ:</strong> ${escapeHtml(game.memo)}</div>` : ''}
+          </div>
+        `;
+      } else {
+        const stadiumHeaderDisplay = game.stadium ? `<div class="text-xs text-slate-500 font-medium mb-1 flex items-center justify-center gap-1"><i class="fa-solid fa-location-dot" style="color: ${homeTeamColor};"></i>${escapeHtml(game.stadium)}</div>` : '';
+        const teamColor = team.color || getTeamColor(team.name);
+        scoreDetailCard = `
+          <div class="bg-slate-50 border border-slate-200/60 p-3 rounded-2xl shadow-sm text-center">
+            ${stadiumHeaderDisplay}
+            <div class="text-sm text-slate-500 mb-1.5">スコアがまだ入力されていません</div>
+            <button onclick="openScoreEditModalFromDetails()" class="px-3 py-1.5 text-xs text-white font-medium rounded-xl shadow-sm" style="background-color: ${teamColor};">スコア・メモを入力する</button>
+          </div>
+        `;
+      }
+
+      fixedScoreArea.innerHTML = scoreDetailCard;
+
+      const messagesContainer = document.getElementById('detailMessages');
+      messagesContainer.innerHTML = '';
+
+      if (game.messages.length === 0) {
+        messagesContainer.innerHTML = `<div class="p-4 text-center text-slate-400 text-sm">写真がまだ登録されていません</div>`;
+        return;
+      }
+
+      const gridWrapper = document.createElement('div');
+      gridWrapper.className = 'grid grid-cols-2 gap-2.5';
+      gridWrapper.style.paddingBottom = 'calc(65px * 2 * 2 / 3)';
+
+      game.messages.forEach((msg) => {
+        const msgEl = document.createElement('div');
+        msgEl.className = 'bg-white rounded-xl shadow-sm border border-slate-200/60 relative group flex flex-col justify-between overflow-hidden cursor-grab active:cursor-grabbing';
+        msgEl.draggable = true;
+        msgEl.dataset.msgId = msg.id;
+
+        msgEl.addEventListener('dragstart', (e) => {
+          e.dataTransfer.setData('text/plain', msg.id);
+          msgEl.classList.add('dragging');
+        });
+        msgEl.addEventListener('dragend', () => {
+          msgEl.classList.remove('dragging');
+        });
+        msgEl.addEventListener('dragover', (e) => {
+          e.preventDefault();
+        });
+        msgEl.addEventListener('drop', async (e) => {
+          e.preventDefault();
+          const draggedId = e.dataTransfer.getData('text/plain');
+          const targetId = msg.id;
+          if (draggedId && draggedId !== targetId) {
+            await reorderMessages(draggedId, targetId);
+          }
+        });
+
+        const photoHtml = msg.photo ? `
+          <div class="w-full h-40 bg-slate-100 cursor-pointer relative group/img" onclick="openPhotoPreview('${msg.id}')">
+            <img src="${escapeHtml(msg.photo)}" alt="写真" class="w-full h-full object-cover transition group-hover/img:scale-105">
+          </div>
+        ` : '';
+
+        msgEl.innerHTML = `
+          <div>
+            ${photoHtml}
+          </div>
+        `;
+        gridWrapper.appendChild(msgEl);
+      });
+
+      messagesContainer.appendChild(gridWrapper);
+    }
+
+    async function reorderMessages(draggedId, targetId) {
+      const team = teamsData.find(t => t.id === currentTeamId);
+      const game = team.games.find(g => g.id === currentGameId);
+      if (!game) return;
+
+      const draggedIndex = game.messages.findIndex(m => m.id === draggedId);
+      const targetIndex = game.messages.findIndex(m => m.id === targetId);
+      if (draggedIndex === -1 || targetIndex === -1) return;
+
+      const [movedItem] = game.messages.splice(draggedIndex, 1);
+      game.messages.splice(targetIndex, 0, movedItem);
+
+      await saveDataToDB();
+      renderDetailMessages();
+    }
+
+    async function handlePhotoSelect(event) {
+      const files = event.target.files;
+      if (!files || files.length === 0) return;
+
+      if (!currentTeamId || !currentGameId) return;
+      const team = teamsData.find(t => t.id === currentTeamId);
+      const game = team.games.find(g => g.id === currentGameId);
+      if (!game) return;
+
+      for (let i = 0; i < files.length; i++) {
+        const file = files[i];
+        await new Promise((resolve) => {
+          const reader = new FileReader();
+          reader.onload = async function(e) {
+            const photoBase64 = e.target.result;
+            game.messages.push({
+              id: 'msg_' + Date.now() + '_' + i,
+              photo: photoBase64
+            });
+            resolve();
+          };
+          reader.readAsDataURL(file);
+        });
+      }
+
+      await saveDataToDB();
+      document.getElementById('photoInput').value = '';
+      renderDetailMessages();
+      showToast('写真を追加しました');
+      setTimeout(hideToast, 1500);
+    }
+
+    function openPhotoPreview(msgId) {
+      currentPreviewPhotoId = msgId;
+      const team = teamsData.find(t => t.id === currentTeamId);
+      if (!team) return;
+      const game = team.games.find(g => g.id === currentGameId);
+      if (!game) return;
+
+      const msg = game.messages.find(m => m.id === msgId);
+      if (!msg || !msg.photo) return;
+
+      document.getElementById('previewModalImg').src = msg.photo;
+      const modal = document.getElementById('photoPreviewModal');
+      modal.classList.remove('hidden');
+      modal.classList.add('flex');
+    }
+
+    function navigatePhoto(direction) {
+      const team = teamsData.find(t => t.id === currentTeamId);
+      if (!team) return;
+      const game = team.games.find(g => g.id === currentGameId);
+      if (!game || !game.messages || game.messages.length === 0) return;
+
+      const photoMessages = game.messages.filter(m => m.photo);
+      if (photoMessages.length === 0) return;
+
+      const currentIndex = photoMessages.findIndex(m => m.id === currentPreviewPhotoId);
+      if (currentIndex === -1) {
+        openPhotoPreview(photoMessages[0].id);
+        return;
+      }
+
+      let newIndex = currentIndex + direction;
+      if (newIndex < 0) {
+        newIndex = photoMessages.length - 1;
+      } else if (newIndex >= photoMessages.length) {
+        newIndex = 0;
+      }
+
+      openPhotoPreview(photoMessages[newIndex].id);
+    }
+
+    function closePhotoPreview() {
+      const modal = document.getElementById('photoPreviewModal');
+      modal.classList.remove('flex');
+      modal.classList.add('hidden');
+      currentPreviewPhotoId = null;
+    }
+
+    function openCustomCalendar() {
+      const dateInputVal = document.getElementById('inputGameDate').value;
+      if (dateInputVal) {
+        const parts = dateInputVal.split('-');
+        if (parts.length === 3) {
+          calYear = parseInt(parts[0], 10);
+          calMonth = parseInt(parts[1], 10) - 1;
+        }
+      } else {
+        const now = new Date();
+        calYear = now.getFullYear();
+        calMonth = now.getMonth();
+      }
+      renderCalendarGrid();
+      const calModal = document.getElementById('customCalendarModal');
+      calModal.classList.remove('hidden');
+      calModal.classList.add('flex');
+    }
+
+    function closeCustomCalendar() {
+      const calModal = document.getElementById('customCalendarModal');
+      calModal.classList.remove('flex');
+      calModal.classList.add('hidden');
+    }
+
+    function changeMonth(direction) {
+      calMonth += direction;
+      if (calMonth > 11) {
+        calMonth = 0;
+        calYear++;
+      } else if (calMonth < 0) {
+        calMonth = 11;
+        calYear--;
+      }
+      renderCalendarGrid();
+    }
+
+    function renderCalendarGrid() {
+      const titleEl = document.getElementById('calCurrentMonthTitle');
+      titleEl.textContent = `${calYear}年 ${calMonth + 1}月`;
+
+      const gridEl = document.getElementById('calDaysGrid');
+      gridEl.innerHTML = '';
+
+      const firstDayIndex = new Date(calYear, calMonth, 1).getDay();
+      const lastDay = new Date(calYear, calMonth + 1, 0).getDate();
+      const currentDateVal = document.getElementById('inputGameDate').value;
+      const team = teamsData.find(t => t.id === currentTeamId);
+      const teamColor = team ? (team.color || '#059669') : '#059669';
+
+      for (let i = 0; i < firstDayIndex; i++) {
+        const emptyCell = document.createElement('div');
+        gridEl.appendChild(emptyCell);
+      }
+
+      for (let day = 1; day <= lastDay; day++) {
+        const yyyy = calYear;
+        const mm = String(calMonth + 1).padStart(2, '0');
+        const dd = String(day).padStart(2, '0');
+        const dateStr = `${yyyy}-${mm}-${dd}`;
+
+        const dayCell = document.createElement('button');
+        dayCell.type = 'button';
+        dayCell.className = `w-9 h-9 mx-auto rounded-full flex items-center justify-center text-sm transition font-medium ${dateStr === currentDateVal ? 'text-white font-bold' : 'hover:bg-slate-100 text-slate-700'}`;
+        if (dateStr === currentDateVal) {
+          dayCell.style.backgroundColor = teamColor;
+          if (team && team.color === '#ffe500') dayCell.style.color = '#1e293b';
+        }
+        dayCell.textContent = day;
+        dayCell.onclick = () => {
+          document.getElementById('inputGameDate').value = dateStr;
+          closeCustomCalendar();
+        };
+        gridEl.appendChild(dayCell);
+      }
+    }
+
+    function initPresetTeamOptions() {
+      const presetSelect = document.getElementById('inputTeamPreset');
+      presetSelect.innerHTML = '<option value="">-- 球団を選択してください --</option>';
+      BASEBALL_TEAMS.forEach(t => {
+        const opt = document.createElement('option');
+        opt.value = t.name;
+        opt.textContent = t.name;
+        presetSelect.appendChild(opt);
+      });
+    }
+
+    function initPresetStadiumOptions() {
+      const stadiumPresetSelect = document.getElementById('inputStadiumPreset');
+      stadiumPresetSelect.innerHTML = '<option value="">-- 本拠地リストから選択 --</option>';
+
+      const leagues = ["セ・リーグ", "パ・リーグ"];
+      leagues.forEach(leagueName => {
+        const groupOptgroup = document.createElement('optgroup');
+        groupOptgroup.label = leagueName;
+
+        BASEBALL_TEAMS.filter(t => t.league === leagueName).forEach(team => {
+          const opt = document.createElement('option');
+          opt.value = team.homeStadium;
+          opt.textContent = `${team.homeStadium} (${team.short})`;
+          groupOptgroup.appendChild(opt);
+        });
+        stadiumPresetSelect.appendChild(groupOptgroup);
+      });
+    }
+
+    function onPresetStadiumChange() {
+      const val = document.getElementById('inputStadiumPreset').value;
+      if (val) {
+        document.getElementById('inputGameStadium').value = val;
+      }
+    }
+
+    function onPresetTeamChange() {
+      const val = document.getElementById('inputTeamPreset').value;
+      if (val) {
+        document.getElementById('inputTeamName').value = val;
+      } else {
+        document.getElementById('inputTeamName').value = '';
+      }
+    }
+
+    function onPresetOpponentChange() {
+      const val = document.getElementById('inputGameOpponentPreset').value;
+      if (val) {
+        document.getElementById('inputGameOpponent').value = val;
+        autoGuessStadiumAndSide();
+      } else {
+        document.getElementById('inputGameOpponent').value = '';
+      }
+    }
+
+    function autoGuessStadiumAndSide() {
+      const opponentName = document.getElementById('inputGameOpponent').value;
+      const side = document.getElementById('inputGameSide').value;
+      const currentTeam = teamsData.find(t => t.id === currentTeamId);
+      if (!currentTeam) return;
+
+      const myTeamInfo = BASEBALL_TEAMS.find(t => t.name === currentTeam.name);
+      const oppTeamInfo = BASEBALL_TEAMS.find(t => t.name === opponentName);
+
+      if (!myTeamInfo || !oppTeamInfo) return;
+
+      let guessedStadium = "";
+      if (side === 'home') {
+        guessedStadium = myTeamInfo.homeStadium;
+      } else {
+        guessedStadium = oppTeamInfo.homeStadium;
+      }
+
+      if (guessedStadium) {
+        document.getElementById('inputGameStadium').value = guessedStadium;
+      }
+    }
+
+    // 応援チーム一覧・編集モーダルを開く
+    function openTeamListModal() {
+      renderTeamListInModal();
+      const modal = document.getElementById('teamListModal');
+      modal.classList.remove('hidden');
+      modal.classList.add('flex');
+    }
+
+    function closeTeamListModal() {
+      const modal = document.getElementById('teamListModal');
+      modal.classList.remove('flex');
+      modal.classList.add('hidden');
+    }
+
+    function renderTeamListInModal() {
+      const container = document.getElementById('teamListContainer');
+      container.innerHTML = '';
+
+      if (teamsData.length === 0) {
+        container.innerHTML = '<div class="text-center py-4 text-xs text-slate-400">登録されているチームがありません</div>';
+        return;
+      }
+
+      teamsData.forEach(team => {
+        const row = document.createElement('div');
+        row.className = 'flex items-center justify-between py-2.5 px-2';
+        
+        const teamColor = team.color || getTeamColor(team.name);
+        const teamShortName = getTeamShortName(team.name);
+        
+        row.innerHTML = `
+          <div class="flex items-center gap-2.5 min-w-0">
+            <span class="w-3 h-3 rounded-full shrink-0 shadow-sm" style="background-color: ${teamColor};"></span>
+            <div class="text-xs font-bold text-slate-800 truncate">${escapeHtml(teamShortName)}</div>
+          </div>
+          <div class="flex items-center gap-1.5 shrink-0">
+            <button onclick="deleteTeam('${team.id}')" class="px-2.5 py-1 text-xs bg-rose-50 hover:bg-rose-100 text-rose-600 font-medium rounded-lg transition">削除</button>
+          </div>
+        `;
+        container.appendChild(row);
+      });
+    }
+
+    async function deleteTeam(teamId) {
+      if (!confirm('この応援チームと関連するすべての試合・観戦ログを削除しますか？')) return;
+
+      teamsData = teamsData.filter(t => t.id !== teamId);
+      if (teamsData.length > 0) {
+        if (currentTeamId === teamId) {
+          currentTeamId = teamsData[0].id;
+        }
+      } else {
+        currentTeamId = null;
+      }
+
+      await saveDataToDB();
+
+      if (teamsData.length === 0) {
+        closeTeamListModal();
+        openTeamModal();
+      } else {
+        renderTeamListInModal();
+      }
+
+      updateHeaderTeamSelect();
+      updateYearFilterOptions();
+      renderGameList();
+      showToast('チームを削除しました');
+      setTimeout(hideToast, 1500);
+    }
+
+    function openTeamModal(teamId = null) {
+      const modal = document.getElementById('teamModal');
+      const title = document.getElementById('teamModalTitle');
+      const editId = document.getElementById('editTeamId');
+      const nameInput = document.getElementById('inputTeamName');
+      const presetSelect = document.getElementById('inputTeamPreset');
+
+      initPresetTeamOptions();
+
+      if (teamId) {
+        const team = teamsData.find(t => t.id === teamId);
+        title.textContent = '応援チームを編集';
+        editId.value = team ? team.id : '';
+        nameInput.value = team ? team.name : '';
+        presetSelect.value = team ? team.name : '';
+      } else {
+        title.textContent = '応援チームを追加';
+        editId.value = '';
+        nameInput.value = '';
+        presetSelect.value = '';
+      }
+      modal.classList.remove('hidden');
+      modal.classList.add('flex');
+    }
+
+    function closeTeamModal() {
+      document.getElementById('teamModal').classList.remove('flex');
+      document.getElementById('teamModal').classList.add('hidden');
+    }
+
+    async function saveTeam() {
+      const editId = document.getElementById('editTeamId').value;
+      const name = document.getElementById('inputTeamName').value.trim();
+
+      if (!name) {
+        alert('球団を選択してください');
+        return;
+      }
+
+      const color = getTeamColor(name);
+      const textColor = getTeamTextColor(name);
+      const found = BASEBALL_TEAMS.find(t => t.name === name);
+      const league = found ? found.league : '';
+
+      if (editId) {
+        const team = teamsData.find(t => t.id === editId);
+        if (team) {
+          team.name = name;
+          team.color = color;
+          team.textColor = textColor;
+          team.league = league;
+        }
+      } else {
+        const newTeamId = 'team_' + Date.now();
+        teamsData.push({
+          id: newTeamId,
+          name,
+          color,
+          textColor,
+          sport: 'baseball',
+          league,
+          games: []
+        });
+        currentTeamId = newTeamId;
+      }
+
+      await saveDataToDB();
+      closeTeamModal();
+      
+      // チーム一覧モーダルが開いている場合は一覧を再描画し、開いていなければメインを初期化
+      if (document.getElementById('teamListModal').classList.contains('flex')) {
+        renderTeamListInModal();
+      }
+      initMainTeam();
+      showToast('チームを保存しました');
+      setTimeout(hideToast, 1500);
+    }
+
+    function setGameSide(side) {
+      document.getElementById('inputGameSide').value = side;
+      const team = teamsData.find(t => t.id === currentTeamId);
+      const teamColor = team ? (team.color || '#059669') : '#059669';
+      const isDarkText = team && team.color === '#ffe500';
+
+      const homeBtn = document.getElementById('sideBtnHome');
+      const visitorBtn = document.getElementById('sideBtnVisitor');
+
+      homeBtn.style.backgroundColor = '';
+      homeBtn.style.borderColor = '';
+      homeBtn.style.color = '';
+      visitorBtn.style.backgroundColor = '';
+      visitorBtn.style.borderColor = '';
+      visitorBtn.style.color = '';
+
+      homeBtn.className = "py-2 text-sm font-bold rounded-xl border border-slate-200 bg-white text-slate-700 transition flex items-center justify-center gap-1.5";
+      visitorBtn.className = "py-2 text-sm font-bold rounded-xl border border-slate-200 bg-white text-slate-700 transition flex items-center justify-center gap-1.5";
+
+      if (side === 'home') {
+        homeBtn.className = "py-2 text-sm font-bold rounded-xl border shadow-sm transition flex items-center justify-center gap-1.5";
+        homeBtn.style.backgroundColor = teamColor;
+        homeBtn.style.borderColor = teamColor;
+        homeBtn.style.color = isDarkText ? '#1e293b' : '#ffffff';
+      } else {
+        visitorBtn.className = "py-2 text-sm font-bold rounded-xl border shadow-sm transition flex items-center justify-center gap-1.5";
+        visitorBtn.style.backgroundColor = teamColor;
+        visitorBtn.style.borderColor = teamColor;
+        visitorBtn.style.color = isDarkText ? '#1e293b' : '#ffffff';
+      }
+
+      autoGuessStadiumAndSide();
+    }
+
+    function openGameModal(gameId = null) {
+      const modal = document.getElementById('gameModal');
+      const title = document.getElementById('gameModalTitle');
+      const editId = document.getElementById('editGameId');
+      const dateInput = document.getElementById('inputGameDate');
+      const opponentInput = document.getElementById('inputGameOpponent');
+      const stadiumInput = document.getElementById('inputGameStadium');
+      const stadiumPreset = document.getElementById('inputStadiumPreset');
+      const deleteBtn = document.getElementById('deleteGameBtnInModal');
+
+      const team = teamsData.find(t => t.id === currentTeamId);
+      applyCurrentTeamTheme();
+      initPresetStadiumOptions();
+
+      const presetOppSelect = document.getElementById('inputGameOpponentPreset');
+      presetOppSelect.innerHTML = '<option value="">-- 対戦相手を選択してください --</option>';
+      BASEBALL_TEAMS.forEach(t => {
+        if (!team || t.name !== team.name) {
+          const opt = document.createElement('option');
+          opt.value = t.name;
+          opt.textContent = t.name;
+          presetOppSelect.appendChild(opt);
+        }
+      });
+
+      if (gameId) {
+        const game = team.games.find(g => g.id === gameId);
+        title.textContent = '試合情報を編集';
+        editId.value = game.id;
+        dateInput.value = game.date || '';
+        opponentInput.value = game.opponent || '';
+        presetOppSelect.value = game.opponent || '';
+        stadiumInput.value = game.stadium || '';
+        stadiumPreset.value = '';
+        setGameSide(game.side || 'home');
+        deleteBtn.classList.remove('hidden');
+      } else {
+        title.textContent = '試合を追加';
+        editId.value = '';
+        const now = new Date();
+        const yyyy = now.getFullYear();
+        const mm = String(now.getMonth() + 1).padStart(2, '0');
+        const dd = String(now.getDate()).padStart(2, '0');
+        dateInput.value = `${yyyy}-${mm}-${dd}`;
+        opponentInput.value = '';
+        presetOppSelect.value = '';
+        setGameSide('home');
+        stadiumInput.value = team ? team.homeStadium : '';
+        stadiumPreset.value = '';
+        deleteBtn.classList.add('hidden');
+      }
+
+      modal.classList.remove('hidden');
+      modal.classList.add('flex');
+    }
+
+    function closeGameModal() {
+      document.getElementById('gameModal').classList.remove('flex');
+      document.getElementById('gameModal').classList.add('hidden');
+    }
+
+    async function saveGame() {
+      const editId = document.getElementById('editGameId').value;
+      const date = document.getElementById('inputGameDate').value.trim();
+      const opponent = document.getElementById('inputGameOpponent').value.trim();
+      const stadium = document.getElementById('inputGameStadium').value.trim();
+      const side = document.getElementById('inputGameSide').value;
+
+      if (!date) {
+        alert('試合日を入力してください');
+        return;
+      }
+      if (!opponent) {
+        alert('対戦相手を選択してください');
+        return;
+      }
+
+      const team = teamsData.find(t => t.id === currentTeamId);
+      if (!team) return;
+
+      if (editId) {
+        const game = team.games.find(g => g.id === editId);
+        if (game) {
+          game.date = date;
+          game.opponent = opponent;
+          game.stadium = stadium;
+          game.side = side;
+        }
+      } else {
+        team.games.push({
+          id: 'game_' + Date.now(),
+          date,
+          opponent,
+          stadium,
+          side,
+          memo: '',
+          scoreData: null,
+          messages: []
+        });
+      }
+
+      team.games.sort((a, b) => (b.date || '').localeCompare(a.date || ''));
+
+      await saveDataToDB();
+      closeGameModal();
+      updateYearFilterOptions();
+      renderGameList();
+      if (document.getElementById('screen-details').classList.contains('active')) {
+        renderDetailMessages();
+      }
+    }
+
+    async function deleteGameFromModal() {
+      const editId = document.getElementById('editGameId').value;
+      if (!editId || !confirm('この試合とすべての観戦ログを削除しますか？')) return;
+      const team = teamsData.find(t => t.id === currentTeamId);
+      if (team) {
+        team.games = team.games.filter(g => g.id !== editId);
+        await saveDataToDB();
+      }
+      closeGameModal();
+      updateYearFilterOptions();
+      renderGameList();
+      if (document.getElementById('screen-details').classList.contains('active')) {
+        switchScreen('screen-games');
+      }
+    }
+
+    function openScoreModal(gameId) {
+      const modal = document.getElementById('scoreModal');
+      const team = teamsData.find(t => t.id === currentTeamId);
+      const game = team.games.find(g => g.id === gameId);
+
+      document.getElementById('inputGameMemo').value = game && game.memo ? game.memo : '';
+
+      let existingInnings = 9;
+      if (game && game.scoreData && Array.isArray(game.scoreData.teamRuns)) {
+        existingInnings = Math.max(9, game.scoreData.teamRuns.length);
+      }
+
+      document.getElementById('inningCountSelect').value = existingInnings;
+      rebuildBaseballInningInputs(game ? game.scoreData : null);
+      applyCurrentTeamTheme();
+
+      modal.classList.remove('hidden');
+      modal.classList.add('flex');
+    }
+
+    function closeScoreModal() {
+      document.getElementById('scoreModal').classList.remove('flex');
+      document.getElementById('scoreModal').classList.add('hidden');
+    }
+
+    function rebuildBaseballInningInputs(existingScoreData = null) {
+      const team = teamsData.find(t => t.id === currentTeamId);
+      if (!team) return;
+
+      const game = currentGameId ? team.games.find(g => g.id === currentGameId) : null;
+      const side = game ? (game.side || 'home') : 'home';
+
+      const inningCount = parseInt(document.getElementById('inningCountSelect').value, 10) || 9;
+      const scoreContainer = document.getElementById('gameModalScoreContainer');
+
+      let currentTeamRuns = [];
+      let currentOppRuns = [];
+      if (existingScoreData) {
+        currentTeamRuns = existingScoreData.teamRuns || [];
+        currentOppRuns = existingScoreData.oppRuns || [];
+      }
+
+      const gridColsClass = inningCount <= 9 ? 'grid-cols-9' : (inningCount === 10 ? 'grid-cols-10' : (inningCount === 11 ? 'grid-cols-11' : 'grid-cols-12'));
+
+      let teamInputsHtml = '';
+      let oppInputsHtml = '';
+
+      for (let i = 1; i <= inningCount; i++) {
+        const tVal = (typeof currentTeamRuns[i-1] !== 'undefined') ? currentTeamRuns[i-1] : 0;
+        const oVal = (typeof currentOppRuns[i-1] !== 'undefined') ? currentOppRuns[i-1] : 0;
+        
+        let labelText = i;
+
+        teamInputsHtml += `<div><span class="text-[10px] text-slate-400">${labelText}</span><input type="text" id="modal_team_r${i}" value="${tVal}" class="w-full bg-slate-50 border border-slate-200 rounded text-center p-1 text-sm modal-score-baseball"></div>`;
+        oppInputsHtml += `<div><span class="text-[10px] text-slate-400">${labelText}</span><input type="text" id="modal_opp_r${i}" value="${oVal}" class="w-full bg-slate-50 border border-slate-200 rounded text-center p-1 text-sm modal-score-baseball"></div>`;
+      }
+
+      const homeTeamName = getTeamShortName(team.name);
+      const rawOppName = game ? (game.opponent || '対戦相手') : '対戦相手';
+      const oppTeamName = getTeamShortName(rawOppName);
+
+      let topName = '';
+      let topInputs = '';
+      let topTotalId = '';
+      let bottomName = '';
+      let bottomInputs = '';
+      let bottomTotalId = '';
+
+      if (side === 'home') {
+        topName = oppTeamName;
+        topInputs = oppInputsHtml;
+        topTotalId = 'modalOppTotalRuns';
+        bottomName = homeTeamName;
+        bottomInputs = teamInputsHtml;
+        bottomTotalId = 'modalTeamTotalRuns';
+      } else {
+        topName = homeTeamName;
+        topInputs = teamInputsHtml;
+        topTotalId = 'modalTeamTotalRuns';
+        bottomName = oppTeamName;
+        bottomInputs = oppInputsHtml;
+        bottomTotalId = 'modalOppTotalRuns';
+      }
+
+      scoreContainer.innerHTML = `
+        <div class="overflow-x-auto pb-1">
+          <label class="block text-xs text-slate-600 font-bold mb-1 truncate" title="${escapeHtml(topName)}">${escapeHtml(topName)} <span class="text-[10px] font-normal text-slate-400">(先攻)</span></label>
+          <div class="grid ${gridColsClass} gap-1 text-center min-w-[280px]">
+            ${topInputs}
+          </div>
+          <div class="mt-1 flex items-center justify-between text-xs">
+            <span class="text-slate-500">合計得点:</span>
+            <input type="text" id="${topTotalId}" class="w-16 bg-slate-100 border border-slate-200 rounded text-center font-bold p-0.5 text-sm" readonly>
+          </div>
+        </div>
+        <div class="overflow-x-auto pb-1 pt-2">
+          <label class="block text-xs text-slate-600 font-bold mb-1 truncate" title="${escapeHtml(bottomName)}">${escapeHtml(bottomName)} <span class="text-[10px] font-normal text-slate-400">(後攻)</span></label>
+          <div class="grid ${gridColsClass} gap-1 text-center min-w-[280px]">
+            ${bottomInputs}
+          </div>
+          <div class="mt-1 flex items-center justify-between text-xs">
+            <span class="text-slate-500">合計得点:</span>
+            <input type="text" id="${bottomTotalId}" class="w-16 bg-slate-100 border border-slate-200 rounded text-center font-bold p-0.5 text-sm" readonly>
+          </div>
+        </div>
+      `;
+
+      updateModalScoreTotalsBaseball(inningCount);
+      document.querySelectorAll('.modal-score-baseball').forEach(input => {
+        input.oninput = () => updateModalScoreTotalsBaseball(inningCount);
+      });
+    }
+
+    function updateModalScoreTotalsBaseball(inningCount = 9) {
+      let tRunsArr = [];
+      let oRunsArr = [];
+      for (let i = 1; i <= inningCount; i++) {
+        const tEl = document.getElementById(`modal_team_r${i}`);
+        const oEl = document.getElementById(`modal_opp_r${i}`);
+        tRunsArr.push(tEl ? tEl.value : 0);
+        oRunsArr.push(oEl ? oEl.value : 0);
+      }
+
+      let isWalkoffTeam = tRunsArr.some(v => parseRunVal(v).isWalkoff);
+      let isWalkoffOpp = oRunsArr.some(v => parseRunVal(v).isWalkoff);
+
+      const tTotalStr = formatTotalScoreDisplay(tRunsArr, isWalkoffTeam);
+      const oTotalStr = formatTotalScoreDisplay(oRunsArr, isWalkoffOpp);
+
+      const tTotalInput = document.getElementById('modalTeamTotalRuns');
+      const oTotalInput = document.getElementById('modalOppTotalRuns');
+      if (tTotalInput) tTotalInput.value = tTotalStr;
+      if (oTotalInput) oTotalInput.value = oTotalStr;
+    }
+
+    async function saveScoreData() {
+      const team = teamsData.find(t => t.id === currentTeamId);
+      const game = team.games.find(g => g.id === currentGameId);
+      if (!game) return;
+
+      const memoInput = document.getElementById('inputGameMemo');
+      if (memoInput) {
+        game.memo = memoInput.value.trim();
+      }
+
+      const inningCount = parseInt(document.getElementById('inningCountSelect').value, 10) || 9;
+      const teamRuns = [];
+      const oppRuns = [];
+      for (let i = 1; i <= inningCount; i++) {
+        teamRuns.push(document.getElementById(`modal_team_r${i}`).value);
+        oppRuns.push(document.getElementById(`modal_opp_r${i}`).value);
+      }
+      
+      const tSum = calculateTotalScore(teamRuns);
+      const oSum = calculateTotalScore(oppRuns);
+
+      let status = 'draw';
+      if (tSum > oSum) status = 'win';
+      else if (tSum < oSum) status = 'lose';
+
+      let isWalkoffTeam = teamRuns.some(v => parseRunVal(v).isWalkoff);
+      let isWalkoffOpp = oppRuns.some(v => parseRunVal(v).isWalkoff);
+
+      game.scoreData = { status, teamRuns, oppRuns, isWalkoffTeam, isWalkoffOpp };
+
+      await saveDataToDB();
+      closeScoreModal();
+      renderGameList();
+      renderDetailMessages();
+    }
+
+    function openGameContextMenu(e, gameId) {
+      e.stopPropagation();
+      closeAllContextMenus();
+      selectedGameIdForContext = gameId;
+      const menu = document.getElementById('gameContextMenu');
+      menu.style.left = `${Math.min(e.clientX, window.innerWidth - 140)}px`;
+      menu.style.top = `${e.clientY + 10}px`;
+      menu.classList.remove('hidden');
+    }
+
+    async function gameContextAction(type) {
+      closeAllContextMenus();
+      if (type === 'edit') openGameModal(selectedGameIdForContext);
+      if (type === 'delete') {
+        if (confirm('この試合とすべての観戦ログを削除しますか？')) {
+          const team = teamsData.find(t => t.id === currentTeamId);
+          if (team) {
+            team.games = team.games.filter(g => g.id !== selectedGameIdForContext);
+            await saveDataToDB();
+            updateYearFilterOptions();
+            renderGameList();
+          }
+        }
+      }
+    }
+
+    function exportBackup() {
+      const backup = { version: 12, exportedAt: new Date().toISOString(), teams: teamsData };
+      const blob = new Blob([JSON.stringify(backup, null, 2)], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `npblog_backup_${new Date().toISOString().slice(0, 10)}.json`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+      showToast('バックアップファイルを書き出しました');
+      setTimeout(hideToast, 2000);
+    }
+
+    function importBackup(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = async () => {
+        try {
+          const backup = JSON.parse(reader.result);
+          const importedTeams = Array.isArray(backup) ? backup : backup.teams;
+          if (!Array.isArray(importedTeams)) throw new Error();
+          if (!confirm('現在のすべてのデータを置き換えます。よろしいですか？')) return;
+          normalizeScoreData(importedTeams);
+          teamsData = importedTeams;
+          await saveDataToDB();
+          initMainTeam();
+          showToast('バックアップを読み込みました');
+          setTimeout(hideToast, 2000);
+        } catch {
+          alert('ファイルを読み込めませんでした。');
+        } finally {
+          event.target.value = '';
+        }
+      };
+      reader.readAsText(file);
+    }
+
+    function initMainTeam() {
+      if (teamsData.length === 0) {
+        openTeamModal();
+      } else {
+        if (!currentTeamId || !teamsData.some(t => t.id === currentTeamId)) {
+          currentTeamId = teamsData[0].id;
+        }
+        const team = teamsData.find(t => t.id === currentTeamId) || teamsData[0];
+        currentTeamId = team.id;
+        applyCurrentTeamTheme();
+        switchScreen('screen-games');
+      }
+    }
+
+    function togglePhotoMenu(event) {
+      event.stopPropagation();
+      const menu = document.getElementById('photoActionMenu');
+      if (menu) {
+        menu.classList.toggle('hidden');
+      }
+    }
+
+    function closePhotoMenu() {
+      const menu = document.getElementById('photoActionMenu');
+      if (menu) {
+        menu.classList.add('hidden');
+      }
+    }
+
+    async function deleteCurrentPhotoFromPreview() {
+      if (!currentPreviewPhotoId || !currentTeamId || !currentGameId) return;
+      if (!confirm('この写真を削除しますか？')) return;
+
+      const team = teamsData.find(t => t.id === currentTeamId);
+      if (!team) return;
+      const game = team.games.find(g => g.id === currentGameId);
+      if (!game) return;
+
+      game.messages = game.messages.filter(m => m.id !== currentPreviewPhotoId);
+
+      await saveDataToDB();
+      closePhotoPreview();
+      renderDetailMessages();
+      showToast('写真を削除しました');
+      setTimeout(hideToast, 1500);
+    }
+
+    document.getElementById('searchGame').addEventListener('input', (e) => renderGameList(e.target.value.trim()));
+
+    const buttons = document.querySelectorAll('.track-btn');
+    buttons.forEach(button => {
+      button.addEventListener('click', function() {
+        const buttonName = this.getAttribute('data-button-name');
+        gtag('event', 'button_click', {
+          'button_name': buttonName,
+          'page_location': window.location.href
+        });
+      });
+    });
+
+    initDB()
+      .then(async () => {
+        await loadDataFromDB();
+        initMainTeam();
+      })
+      .catch(err => {
+        console.error('IndexedDB initialization failed:', err);
+        showToast('データベースの初期化に失敗しました');
+      });
+  </script>
+</body>
+</html>
